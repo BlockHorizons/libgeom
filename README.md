@@ -1,2 +1,2 @@
-# libworldedit
-Virion for world editing, based on WorldEditArt
+# libgeom
+Virion for geometric operations in PocketMine plugins

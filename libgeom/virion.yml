@@ -1,0 +1,5 @@
+name: libgeom
+version: 0.1.0
+api: [3.0.0-ALPHA5]
+antigen: sofe\libgeom
+author: SOFe

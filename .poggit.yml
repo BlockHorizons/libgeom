@@ -1,0 +1,7 @@
+---
+projects:
+  libgeom:
+    path: /libgeom/
+    type: library
+    model: virion
+...

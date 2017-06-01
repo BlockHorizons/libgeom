@@ -67,7 +67,7 @@ class CuboidShape extends Shape{
 				min($this->from->x, $this->to->x),
 				min($this->from->y, $this->to->y),
 				min($this->from->z, $this->to->z));
-			$this->min = new Vector3(
+			$this->max = new Vector3(
 				max($this->from->x, $this->to->x),
 				max($this->from->y, $this->to->y),
 				max($this->from->z, $this->to->z));

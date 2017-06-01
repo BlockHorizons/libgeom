@@ -24,12 +24,23 @@ class BlockOperation{
 	private $id;
 	/** @var BlockStream|null */
 	private $stream; // TODO unset this upon first completion
+	/** @var BlockReplacer|null */
+	private $replacer;
 	/** @var int */
-	private $step = 0;
+	private $step = -1;
 	/** @var int */
 	private $levelId;
 	/** @var bool */
 	private $forwards = true;
+
+	/** @var BlockOperationManager */
+	private $manager;
+	/** @var string */
+	private $key;
+	/** @var int */
+	private $startOffset;
+	/** @var bool */
+	private $canReadDirectly = false;
 
 	public static function getNextId() : int{
 		return BlockOperation::$nextId++;
@@ -51,6 +62,7 @@ class BlockOperation{
 
 	public function setForwards(bool $forwards) : BlockOperation{
 		$this->forwards = $forwards;
+		$this->step += $forwards ? -1 : 1;
 		return $this;
 	}
 
@@ -61,12 +73,72 @@ class BlockOperation{
 	public function sizeRequired() : int{
 		return 4 // operation ID
 			+ 4 // level ID
-			+ $this->stream->maxSize() * (
-				5 * 3 // position
-				+ 5 // undo blockId (before)
-				+ 1 // undo blockData (before)
-				+ 5 // redo blockId (after)
-				+ 1 // redo blockData (after)
-			);
+			+ $this->stream->maxSize() * BlockOperationManager::BYTES_PER_STEP;
+	}
+
+	public function startOperation(BlockOperationManager $manager){
+		$this->key = $manager->lock();
+		$this->manager = $manager;
+		$offset = $manager->mseek($this->key, $this->id);
+		if($offset === -1){
+			return;
+		}
+		$this->startOffset = $offset;
+	}
+
+	public function operateNext() : bool{
+		if(!isset($this->manager, $this->key, $this->startOffset)){
+			throw new \InvalidStateException("Call startOperation() before calling operateNext()!");
+		}
+
+		if($this->forwards){
+			++$this->step;
+		}else{
+			--$this->step;
+		}
+		if($this->step === -1){
+			return false;
+		}
+		if(!$this->forwards or !$this->canReadDirectly){
+			$this->manager->seekStep($this->key, $this->startOffset, $this->step);
+		}
+		$hadStep = $this->manager->readStep($this->key, $pos, $rfrom, $rto);
+		if($hadStep){
+			$from = $rfrom;
+			$to = $rto;
+		}else{
+			assert($this->forwards);
+			if(isset($this->stream, $this->replacer)){
+				$from = $this->stream->nextBlock();
+				if($from !== null){ // not end of stream yet
+					$to = $this->replacer->getReplacement($from);
+					if($to !== null){
+						$to->setComponents($from->x, $from->y, $from->z);
+						$this->manager->seekStep($this->key, $this->startOffset, $this->step);
+						$this->manager->writeStep($this->key, $from, $from, $to);
+					}else{ // skip this cycle, may continue in the next cycle
+						--$this->step;
+						return true;
+					}
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
+		$this->canReadDirectly = $this->forwards;
+
+		$from->getLevel()->setBlock($from, $this->forwards ? $to : $from, false, false);
+		return true;
+	}
+
+	public function stopOperation(){
+		unset($this->manager, $this->key, $this->startOffset);
+		$this->canReadDirectly = false;
+
+		if(isset($this->stream, $this->replacer)){
+			unset($this->stream, $this->replacer);
+		}
 	}
 }

@@ -16,8 +16,6 @@
 namespace sofe\libgeom\blockop;
 
 use pocketmine\block\Block;
-use pocketmine\level\Level;
-use pocketmine\level\Position;
 use pocketmine\math\Vector3;
 use pocketmine\plugin\Plugin;
 use sofe\libgeom\FileBinaryStream;
@@ -33,6 +31,9 @@ class BlockOperationManager extends FileBinaryStream{
 	private $freedSections = [];
 
 	private $lock;
+
+	/** @var UserHistory[] */
+	public $activeHistories = [];
 
 	public function __construct(Plugin $plugin, string $tmpFile){
 		$this->taskId = $plugin->getServer()->getScheduler()->scheduleRepeatingTask(new OperationExecutionTask($this), 1)->getTaskId();
@@ -72,7 +73,7 @@ class BlockOperationManager extends FileBinaryStream{
 	}
 
 	/**
-	 * Allocate memory for writing. Before anything is written, the allocated memory may contain any (probably unreasonable) data.
+	 * Allocate memory for writing. Before anything is written, the allocated memory should contain null bytes only.
 	 *
 	 * @param string $key
 	 * @param int    $id
@@ -96,7 +97,12 @@ class BlockOperationManager extends FileBinaryStream{
 					$this->freedSections[$key][0] = $start + $len;
 				}
 				$this->occupiedSections[$id] = [$start, $start + $len];
-				fseek($this->fh, $len - 1);
+				fseek($this->fh, $start);
+				for($ll = $len; $ll > 4000; $ll -= 4000){
+					fwrite($this->fh, str_repeat("\0", 4000));
+				}
+				fwrite($this->fh, str_repeat("\0", $ll));
+				fseek($this->fh, $start);
 				return $start;
 			}
 		}
@@ -108,6 +114,21 @@ class BlockOperationManager extends FileBinaryStream{
 		$start = $this->getOffset();
 		$this->occupiedSections[$id] = [$start, $start + $len];
 		return $start;
+	}
+
+	public function mseek(string $key, int $id) : int{
+		$this->validateLock($key);
+
+		if(!isset($this->occupiedSections[$id])){
+			return -1;
+		}
+		list($start) = $this->occupiedSections[$id];
+		fseek($this->fh, $start);
+
+		$opId = $this->getInt();
+		assert($opId === $id, "Operation not stored correctly");
+		$levelId = $this->getInt(); // why did I even store this?
+		return $this->getOffset();
 	}
 
 	public function mfree(int $id){
@@ -152,29 +173,38 @@ class BlockOperationManager extends FileBinaryStream{
 		$this->putInt($operation->getLevelId());
 	}
 
-
-	private function readPosition(string $key, Level $level = null) : Position{
+	public function seekStep(string $key, int $startOffset, int $step){
 		$this->validateLock($key);
-		return new Position($this->getVarInt(), $this->getUnsignedVarInt(), $this->getVarInt(), $level);
+		fseek($this->fh, $startOffset + 8 + $step * BlockOperationManager::BYTES_PER_STEP);
 	}
 
-	private function writeVector(string $key, Vector3 $vector){
+	public function readStep(string $key, Vector3 &$pos = null, Block &$from = null, Block &$to = null) : bool{
 		$this->validateLock($key);
-		$this->putVarInt($vector->x);
-		$this->putUnsignedVarInt($vector->y);
-		$this->putVarInt($vector->z);
+		if(!$this->getBool()){
+			return false;
+		}
+		$pos = new Vector3($this->getInt(), $this->getShort(), $this->getInt());
+		$from = Block::get($this->getInt(), $this->getByte());
+		$to = Block::get($this->getInt(), $this->getByte());
+		return true;
 	}
 
-	public function readPositionedBlock(string $key, Level $level = null) : Block{
+	public function writeStep(string $key, Vector3 $pos, Block $from, Block $to){
 		$this->validateLock($key);
-		$pos = $this->readPosition($level);
-		return Block::get($this->getUnsignedVarInt(), $this->getByte(), $pos);
+		// flag: 1 byte
+		$this->putBool(true);
+		// position: 10 bytes
+		$this->putInt($pos->x);
+		$this->putShort($pos->y);
+		$this->putInt($pos->z);
+		// from: 5 bytes
+		$this->putInt($from->getId());
+		$this->putByte($from->getDamage());
+		// to: 5 bytes
+		$this->putInt($to->getId());
+		$this->putByte($to->getDamage());
+		// total: 21 bytes
 	}
 
-	public function writePositionedBlock(string $key, Block $block){
-		$this->validateLock($key);
-		$this->writeVector($key, $block);
-		$this->putUnsignedVarInt($block->getId());
-		$this->putByte($block->getDamage());
-	}
+	const BYTES_PER_STEP = 21;
 }

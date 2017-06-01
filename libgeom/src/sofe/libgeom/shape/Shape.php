@@ -15,7 +15,11 @@
 
 namespace sofe\libgeom\shape;
 
+use pocketmine\math\Vector3;
+
 abstract class Shape extends WeakLevelStorage{
+	public abstract function isInside(Vector3 $vector) : bool;
+
 	public abstract function estimateSize() : int;
 
 	public abstract function getSolidStream() : BlockStream;

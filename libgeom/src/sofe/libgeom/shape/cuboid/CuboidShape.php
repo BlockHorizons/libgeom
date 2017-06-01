@@ -17,6 +17,7 @@ namespace sofe\libgeom\shape\cuboid;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use sofe\libgeom\shape\BatchBlockStream;
 use sofe\libgeom\shape\BlockStream;
 use sofe\libgeom\shape\Shape;
 
@@ -34,6 +35,13 @@ class CuboidShape extends Shape{
 		$this->setLevel($level);
 	}
 
+	public function isInside(Vector3 $vector) : bool{
+		return
+			$this->min->x <= $vector->x and $vector->x <= $this->max->x and
+			$this->min->y <= $vector->y and $vector->y <= $this->max->y and
+			$this->min->z <= $vector->z and $vector->z <= $this->max->z;
+	}
+
 	public function estimateSize() : int{
 		$diff = $this->max->subtract($this->min);
 		return ($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1);
@@ -44,7 +52,13 @@ class CuboidShape extends Shape{
 	}
 
 	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		// TODO: Implement getShallowIterator() method.
+		for($i = 1 - (int) round($padding); $i <= (int) round($margin); $i++){
+			$children[] = new CuboidSimpleShallowStream($this);
+		}
+		if(!isset($children)){
+			throw new \InvalidArgumentException("Empty shallow stream");
+		}
+		return new BatchBlockStream($children);
 	}
 
 	public function recalcMinMax(){

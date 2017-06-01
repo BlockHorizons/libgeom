@@ -18,7 +18,6 @@ namespace sofe\libgeom\blockop;
 use pocketmine\block\Block;
 use pocketmine\math\Vector3;
 use pocketmine\plugin\Plugin;
-use sofe\libgeom\FileBinaryStream;
 
 class BlockOperationManager extends FileBinaryStream{
 	/** @var string */

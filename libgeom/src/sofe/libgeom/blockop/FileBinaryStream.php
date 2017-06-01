@@ -13,7 +13,7 @@
  *
 */
 
-namespace sofe\libgeom;
+namespace sofe\libgeom\blockop;
 
 use pocketmine\item\Item;
 use pocketmine\utils\Binary;

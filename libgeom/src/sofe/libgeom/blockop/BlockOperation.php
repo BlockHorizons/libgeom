@@ -79,11 +79,12 @@ class BlockOperation{
 	public function startOperation(BlockOperationManager $manager){
 		$this->key = $manager->lock();
 		$this->manager = $manager;
-		$offset = $manager->mseek($this->key, $this->id);
-		if($offset === -1){
+		list($startOffset, $endOffset) = $manager->mseek($this->key, $this->id);
+		if($startOffset === -1){
 			return;
 		}
-		$this->startOffset = $offset;
+		$this->manager->select($startOffset, $endOffset);
+		$this->startOffset = $startOffset;
 	}
 
 	public function operateNext() : bool{
@@ -134,6 +135,8 @@ class BlockOperation{
 	}
 
 	public function stopOperation(){
+		$this->manager->deselect();
+		$this->manager->unlock($this->key);
 		unset($this->manager, $this->key, $this->startOffset);
 		$this->canReadDirectly = false;
 

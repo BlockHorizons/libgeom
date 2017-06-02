@@ -65,7 +65,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLong($v){
-		fwrite($this->fh, Binary::writeLong($v));
+		$this->put(Binary::writeLong($v));
 	}
 
 	public function getInt(){
@@ -73,7 +73,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putInt($v){
-		fwrite($this->fh, Binary::writeInt($v));
+		$this->put(Binary::writeInt($v));
 	}
 
 	public function getLLong(){
@@ -81,7 +81,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLLong($v){
-		fwrite($this->fh, Binary::writeLLong($v));
+		$this->put(Binary::writeLLong($v));
 	}
 
 	public function getLInt(){
@@ -89,7 +89,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLInt($v){
-		fwrite($this->fh, Binary::writeLInt($v));
+		$this->put(Binary::writeLInt($v));
 	}
 
 	public function getSignedShort(){
@@ -97,7 +97,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putShort($v){
-		fwrite($this->fh, Binary::writeShort($v));
+		$this->put(Binary::writeShort($v));
 	}
 
 	public function getShort(){
@@ -105,7 +105,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putSignedShort($v){
-		fwrite($this->fh, Binary::writeShort($v));
+		$this->put(Binary::writeShort($v));
 	}
 
 	public function getFloat(int $accuracy = -1){
@@ -113,7 +113,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putFloat($v){
-		fwrite($this->fh, Binary::writeFloat($v));
+		$this->put(Binary::writeFloat($v));
 	}
 
 	public function getLShort($signed = true){
@@ -121,7 +121,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLShort($v){
-		fwrite($this->fh, Binary::writeLShort($v));
+		$this->put(Binary::writeLShort($v));
 	}
 
 	public function getLFloat(int $accuracy = -1){
@@ -129,7 +129,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLFloat($v){
-		fwrite($this->fh, Binary::writeLFloat($v));
+		$this->put(Binary::writeLFloat($v));
 	}
 
 	public function getTriad(){
@@ -137,7 +137,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putTriad($v){
-		fwrite($this->fh, Binary::writeTriad($v));
+		$this->put(Binary::writeTriad($v));
 	}
 
 	public function getLTriad(){
@@ -145,15 +145,15 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putLTriad($v){
-		fwrite($this->fh, Binary::writeLTriad($v));
+		$this->put(Binary::writeLTriad($v));
 	}
 
 	public function getByte(){
-		return ord(fread($this->fh, 1));
+		return ord($this->get(1));
 	}
 
 	public function putByte($v){
-		fwrite($this->fh, chr($v));
+		$this->put(chr($v));
 	}
 
 	public function getUUID(){
@@ -225,7 +225,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putUnsignedVarInt($v){
-		fwrite($this->fh, Binary::writeUnsignedVarInt($v));
+		$this->put(Binary::writeUnsignedVarInt($v));
 	}
 
 	public function getVarInt(){
@@ -233,7 +233,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putVarInt($v){
-		fwrite($this->fh, Binary::writeVarInt($v));
+		$this->put(Binary::writeVarInt($v));
 	}
 
 	public function getUnsignedVarLong(){
@@ -241,7 +241,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putUnsignedVarLong($v){
-		fwrite($this->fh, Binary::writeUnsignedVarLong($v));
+		$this->put(Binary::writeUnsignedVarLong($v));
 	}
 
 	public function getVarLong(){
@@ -249,7 +249,7 @@ class FileBinaryStream extends BinaryStream{
 	}
 
 	public function putVarLong($v){
-		fwrite($this->fh, Binary::writeVarLong($v));
+		$this->put(Binary::writeVarLong($v));
 	}
 
 	public function feof(){

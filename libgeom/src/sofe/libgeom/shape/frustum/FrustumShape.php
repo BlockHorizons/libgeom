@@ -17,8 +17,7 @@ namespace sofe\libgeom\shape\frustum;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
-use sofe\libgeom\shape\BlockStream;
-use sofe\libgeom\shape\Shape;
+use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
 
 /**
  * A FrustumShape refers to a conical frustum, a cylinder or a cone.
@@ -35,9 +34,9 @@ use sofe\libgeom\shape\Shape;
  * The shape can be skewed, i.e. the axis of the shape need not be perpendicular to the plane of the base.
  *
  * The shape can be elliptical, i.e. the base can be an ellipse (or a circle, which is a subset of ellipse). As for the
- * top, it can be a point (a circle with zero radius) or an ellipse (or a circle). If it is an ellipse, <b>The minimum
- * radius of the top must be either parallel or perpendicular to the minimum radius of the bottom</b>. The ratio of
- * minimum and maximum radii of the top ellipse may or may not be equal or reciprocal to that of the bottom ellipse.
+ * top, it can be a point (a circle with zero radius) or an ellipse (or a circle). If it is an ellipse, <b>The minor
+ * radius of the top must be parallel to either the major or minor radius of the bottom</b>. The ratio of
+ * minor and major radii of the top ellipse may or may not be equal or reciprocal to that of the bottom ellipse.
  * <b>However, for frustums and cylinders, <b>the planes of the base and the top must be parallel</b>.
  *
  * <h3>Definition</h3>
@@ -52,7 +51,7 @@ use sofe\libgeom\shape\Shape;
  * front-back directions of the FrustomShape. By the right-hand rule, normal cross rightDir = frontDir, where normal
  * points upwards.
  */
-class FrustumShape extends Shape{
+class FrustumShape extends LazyStreamsShape{
 	/** @var Vector3 */
 	private $base, $top;
 	/** @var Vector3 */
@@ -69,17 +68,17 @@ class FrustumShape extends Shape{
 	 * @param float   $baseFrontRadius the front-back radius of the base ellipse, must be positive, may be smaller than |$baseRightCircum-$base|
 	 * @param Vector3 $top             the position vector representing the midpoint of the top ellipse
 	 * @param float   $topRightRadius  the left-right radius of the top ellipse, must be non-negative
-	 * @param float   $topFrontRadius  the front-back radius of the top ellipse, may be smaller than $topMinRadius but parallel to $baseMaxRadius, but sign($topMaxRadius) === sign($topMinRadius)
+	 * @param float   $topFrontRadius  the front-back radius of the top ellipse, may be smaller than $topRightRadius but parallel to $baseFrontRadius, must be non-negative, must be zero if and only if $topRightRadius is zero
 	 * @param Vector3 $normal          the relative vector representing the orientation of line perpendicular to the plane of both ellipses, will be automatically normalized
 	 */
 	public function __construct(Level $level, Vector3 $base, Vector3 $baseRightCircum, float $baseFrontRadius, Vector3 $top, float $topRightRadius, float $topFrontRadius, Vector3 $normal){
 		$this->setLevel($level);
-		assert($normal->dot($base->subtract($baseRightCircum)) == 0, "baseMinCircum-base is not perpendicular to the normal");
+		assert($normal->dot($base->subtract($baseRightCircum)) == 0, "baseRightCircum-base is not perpendicular to the normal");
 		$this->base = $base;
 		$this->baseRightCircum = $baseRightCircum;
-		$baseMinRadiusLine = $baseRightCircum->subtract($this->base);
-		$this->rightDir = $baseMinRadiusLine->normalize();
-		$this->baseRightRadius = $baseMinRadiusLine->length();
+		$baseRightRadiusLine = $baseRightCircum->subtract($this->base);
+		$this->rightDir = $baseRightRadiusLine->normalize();
+		$this->baseRightRadius = $baseRightRadiusLine->length();
 		$this->baseFrontRadius = $baseFrontRadius;
 		assert($this->baseRightRadius > 0);
 		assert($this->baseFrontRadius > 0);
@@ -88,7 +87,7 @@ class FrustumShape extends Shape{
 		$this->topRightRadius = $topRightRadius;
 		$this->topFrontRadius = $topFrontRadius;
 		$this->normal = $normal->normalize();
-		$this->frontDir = $this->normal->cross($this->rightDir); // taking normal as vertical and minDir as rightward, maxDir is forward
+		$this->frontDir = $this->normal->cross($this->rightDir);
 	}
 
 	public function isInside(Vector3 $vector) : bool{
@@ -125,19 +124,46 @@ class FrustumShape extends Shape{
 		$rightProjection = abs($d->dot($this->rightDir)); // if negative, the point is on the left of the axis, so flip it
 		$frontProjection = abs($d->dot($this->frontDir)); // if negative the point is on the back of the axis, so flip it
 
-		$maxRightProjection = $this->baseRightRadius + ($this->topRightRadius - $this->baseRightRadius) * $lambda;
-		$maxFrontProjection = $this->baseFrontRadius + ($this->topFrontRadius - $this->baseFrontRadius) * $lambda;
+		$rightRadius = $this->baseRightRadius + ($this->topRightRadius - $this->baseRightRadius) * $lambda;
+		$frontRadius = $this->baseFrontRadius + ($this->topFrontRadius - $this->baseFrontRadius) * $lambda;
 
-		return $maxRightProjection >= $rightProjection && $maxFrontProjection >= $frontProjection;
+		return ($rightProjection / $rightRadius) ** 2 + ($frontProjection / $frontRadius) ** 2 <= 1;
+	}
+
+	public function marginalDistance(Vector3 $vector) : float{
+		$n = $this->normal;
+		$b = $this->top;
+		$a = $this->base;
+		$p = $vector;
+		$lambda = $n->dot($p->subtract($a)) / $n->dot($b->subtract($a));
+
+		$topDistance = $lambda - 1;
+		$baseDistance = 0 - $lambda;
+		$vertDistance = abs($topDistance) < abs($baseDistance) ? $topDistance : $baseDistance;
+
+		$q = $a->add($b->subtract($a)->multiply($lambda));
+		$D = $p->subtract($q);
+
+		assert($D->dot($n) == 0, "Position-axis difference should be parallel to the ellipses");
+
+		$rightRadius = $this->baseRightRadius + ($this->topRightRadius - $this->baseRightRadius) * $lambda;
+		$frontRadius = $this->baseFrontRadius + ($this->topFrontRadius - $this->baseFrontRadius) * $lambda;
+
+		$angle = acos($D->dot($this->rightDir) / $D->length());
+		$shouldRadius = $rightRadius * $frontRadius / sqrt(($rightRadius * sin($angle)) ** 2 + ($frontRadius * cos($angle)) ** 2);
+		$horizDistance = $D->length() - $shouldRadius;
+		// FIXME The shortest distance from the wall of the frustum rather than the horizontal distance should be used. Right now, if the angle between the horizontal and the wall of the frustum deviates a lot from 90 degrees, the wall may become too thin, or even leaving gaps in between.
+
+		return abs($vertDistance) < abs($horizDistance) ? $vertDistance : $horizDistance;
 	}
 
 	public function estimateSize() : int{
 		// A(h) = area of layer h, where h at base = 0 and h at top = 1
-		// = pi (baseMinRadius + h (topMinRadius - baseMinRadius)) (baseMaxRadius + h (topMaxRadius - baseMaxRadius))
+		// = pi (baseRightRadius + h (topRightRadius - baseRightRadius)) (baseFrontRadius + h (topFrontRadius - baseFrontRadius))
 		// size = (top - base) dot normal * integrate of A(h) on dh from h = 0 to h = 1
 		//      = (top - base) dot normal *
-		//        baseMinRadius*baseMaxRadius + 1/2 (topMinRadius-baseMinRadius) baseMaxRadius
-		//       +1/2 (topMaxRadius-baseMaxRadius) baseMinRadius + 1/3 (topMinRadius-baseMinRadius) (topMaxRadius-baseMaxRadius)
+		//        baseRightRadius*baseFrontRadius + 1/2 (topRightRadius-baseRightRadius) baseFrontRadius
+		//       +1/2 (topFrontRadius-baseFrontRadius) baseRightRadius + 1/3 (topRightRadius-baseRightRadius) (topFrontRadius-baseFrontRadius)
 		$height = $this->top->subtract($this->base)->dot($this->normal); // modulus(normal) == 1
 		$a = $this->baseRightRadius;
 		$b = $this->topRightRadius - $this->baseRightRadius;
@@ -147,11 +173,27 @@ class FrustumShape extends Shape{
 		return round($height * M_PI * $integrate);
 	}
 
-	public function getSolidStream() : BlockStream{
-		// TODO: Implement getSolidStream() method.
+	protected function lazyGetMinX() : int{
+		// TODO: Implement lazyGetMinX() method.
 	}
 
-	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		// TODO: Implement getShallowStream() method.
+	protected function lazyGetMinY() : int{
+		// TODO: Implement lazyGetMinY() method.
+	}
+
+	protected function lazyGetMinZ() : int{
+		// TODO: Implement lazyGetMinZ() method.
+	}
+
+	protected function lazyGetMaxX() : int{
+		// TODO: Implement lazyGetMaxX() method.
+	}
+
+	protected function lazyGetMaxY() : int{
+		// TODO: Implement lazyGetMaxY() method.
+	}
+
+	protected function lazyGetMaxZ() : int{
+		// TODO: Implement lazyGetMaxZ() method.
 	}
 }

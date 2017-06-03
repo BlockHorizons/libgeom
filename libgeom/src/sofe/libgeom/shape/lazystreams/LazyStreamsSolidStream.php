@@ -18,26 +18,55 @@ namespace sofe\libgeom\shape\lazystreams;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use sofe\libgeom\shape\BlockStream;
-use sofe\libgeom\shape\Shape;
+use sofe\libgeom\shape\EndOfBlockStreamException;
 
 class LazyStreamsSolidStream extends BlockStream{
-	private $shape;
+	protected $shape;
+	private $x0, $x1, $y0, $y1, $z0, $z1;
 
-	public function __construct(Shape $shape){
+	private $x, $y, $z;
+
+	public function __construct(LazyStreamsShape $shape){
 		$this->shape = $shape;
+		$this->x0 = $shape->getMinX();
+		$this->x1 = $shape->getMaxX();
+		$this->y0 = $shape->getMinY();
+		$this->y1 = $shape->getMaxY();
+		$this->z0 = $shape->getMinZ();
+		$this->z1 = $shape->getMaxZ();
 	}
 
-	/**
-	 * Returns the next Vector3 to be iterated, or null if iterator has ended
-	 *
-	 * @return Vector3|null
-	 */
 	public function nextVector(){
-		// TODO: Implement nextVector() method.
+		static $vector = null;
+		if($vector === null){
+			$vector = new Vector3;
+		}
+		while(true){
+			++$this->x;
+			if($this->x > $this->x1){
+				++$this->y;
+				$this->x = $this->x0;
+				if($this->y > $this->y1){
+					++$this->z;
+					$this->y = $this->y0;
+					if($this->z > $this->z1){
+						throw new EndOfBlockStreamException;
+					}
+				}
+			}
+			$vector->setComponents($this->x, $this->y, $this->z);
+			if($this->validateVector($vector)){
+				return clone $vector;
+			}
+			return null; // check timing first
+		}
+		throw new \RuntimeException("Code logic problem");
 	}
 
 	protected function rewind(){
-		// TODO: Implement rewind() method.
+		$this->x = $this->x0 - 1;
+		$this->y = $this->y0;
+		$this->z = $this->z0;
 	}
 
 	public function getLevel() : Level{
@@ -45,6 +74,10 @@ class LazyStreamsSolidStream extends BlockStream{
 	}
 
 	public function maxSize() : int{
-		return ceil($this->shape->estimateSize() * 1.5); // a rough guess
+		return (int) ceil($this->shape->estimateSize() * 1.5); // a rough guess
+	}
+
+	protected function validateVector(Vector3$vector):bool{
+		return $this->shape->isInside($vector);
 	}
 }

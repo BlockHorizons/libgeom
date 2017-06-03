@@ -16,6 +16,7 @@
 namespace sofe\libgeom\blockop;
 
 use sofe\libgeom\shape\BlockStream;
+use sofe\libgeom\shape\EndOfBlockStreamException;
 
 class BlockOperation{
 	private static $nextId = 0;
@@ -110,7 +111,15 @@ class BlockOperation{
 		}else{
 			assert($this->forwards);
 			if(isset($this->stream, $this->replacer)){
-				$from = $this->stream->nextBlock();
+				try{
+					$from = $this->stream->nextBlock();
+				}catch(EndOfBlockStreamException $e){
+					return false;
+				}
+				if($from === null){ // empty cycle, check timer and run again
+					--$this->step;
+					return true;
+				}
 				if($from !== null){ // not end of stream yet
 					$to = $this->replacer->getReplacement($from);
 					if($to !== null){

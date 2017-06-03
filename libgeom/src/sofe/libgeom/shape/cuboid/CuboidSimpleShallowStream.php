@@ -18,6 +18,7 @@ namespace sofe\libgeom\shape\cuboid;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use sofe\libgeom\shape\BlockStream;
+use sofe\libgeom\shape\EndOfBlockStreamException;
 
 class CuboidSimpleShallowStream extends BlockStream{
 	/** @var CuboidShape */
@@ -44,7 +45,7 @@ class CuboidSimpleShallowStream extends BlockStream{
 			if($this->b > $this->maxB){
 				$this->phase++;
 				if($this->phase >= 6){
-					return null;
+					throw new EndOfBlockStreamException;
 				}
 				$this->phasalRewind();
 				goto velociraptor;

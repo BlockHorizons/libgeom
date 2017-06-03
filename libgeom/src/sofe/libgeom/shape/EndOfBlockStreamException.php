@@ -15,14 +15,10 @@
 
 namespace sofe\libgeom\shape;
 
-use pocketmine\math\Vector3;
+use Throwable;
 
-abstract class Shape extends SoftLevelStorage{
-	public abstract function isInside(Vector3 $vector) : bool;
-
-	public abstract function estimateSize() : int;
-
-	public abstract function getSolidStream() : BlockStream;
-
-	public abstract function getShallowStream(float $padding, float $margin) : BlockStream;
+class EndOfBlockStreamException extends \Exception{
+	public function __construct(){
+		parent::__construct("EndOfBlockStreamException should be caught");
+	}
 }

@@ -18,7 +18,7 @@ namespace sofe\libgeom\shape;
 use pocketmine\level\Level;
 use pocketmine\utils\MainLogger;
 
-abstract class WeakLevelStorage{
+abstract class SoftLevelStorage{
 	/** @var Level|null */
 	private $level = null;
 

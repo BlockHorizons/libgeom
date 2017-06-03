@@ -32,13 +32,14 @@ class BatchBlockStream extends BlockStream{
 	/** @noinspection PhpInconsistentReturnPointsInspection */
 	public function nextVector(){
 		while(true){
-			$block = $this->children[$this->i]->nextBlock();
-			if($block !== null){
-				return $block;
-			}
-			++$this->i;
-			if(!isset($this->children[$this->i])){
-				return null;
+			try{
+				return $this->children[$this->i]->nextVector();
+			}catch(EndOfBlockStreamException $e){
+				++$this->i;
+				if(!isset($this->children[$this->i])){
+					throw $e; // or new EndOfBlockStreamException, doesn't matter
+				}
+				continue;
 			}
 		}
 	}

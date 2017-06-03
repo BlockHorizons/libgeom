@@ -37,9 +37,11 @@ class OperationExecutionTask extends PluginTask{
 	public function onRun($currentTick){
 		$start = microtime(true);
 		while(microtime(true) - $start < $this->maxTickTime){
-			$this->doCycle();
-			if($this->activeOperation === null){
-				break;
+			for($i = 0; $i < 100; $i++){ // prevent calling microtime(true) too often
+				$this->doCycle();
+				if($this->activeOperation === null){
+					break 2;
+				}
 			}
 		}
 	}

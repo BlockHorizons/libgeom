@@ -173,27 +173,28 @@ class FrustumShape extends LazyStreamsShape{
 		return round($height * M_PI * $integrate);
 	}
 
-	protected function lazyGetMinX() : int{
+
+	protected function lazyGetMinX() : float{
 		// TODO: Implement lazyGetMinX() method.
 	}
 
-	protected function lazyGetMinY() : int{
+	protected function lazyGetMinY() : float{
 		// TODO: Implement lazyGetMinY() method.
 	}
 
-	protected function lazyGetMinZ() : int{
+	protected function lazyGetMinZ() : float{
 		// TODO: Implement lazyGetMinZ() method.
 	}
 
-	protected function lazyGetMaxX() : int{
+	protected function lazyGetMaxX() : float{
 		// TODO: Implement lazyGetMaxX() method.
 	}
 
-	protected function lazyGetMaxY() : int{
+	protected function lazyGetMaxY() : float{
 		// TODO: Implement lazyGetMaxY() method.
 	}
 
-	protected function lazyGetMaxZ() : int{
+	protected function lazyGetMaxZ() : float{
 		// TODO: Implement lazyGetMaxZ() method.
 	}
 }

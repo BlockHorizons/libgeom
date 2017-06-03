@@ -18,6 +18,7 @@ namespace sofe\libgeom\shape\cuboid;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use sofe\libgeom\shape\BlockStream;
+use sofe\libgeom\shape\EndOfBlockStreamException;
 
 class CuboidSolidStream extends BlockStream{
 	/** @var CuboidShape */
@@ -54,7 +55,7 @@ class CuboidSolidStream extends BlockStream{
 				$this->tv->y = $this->iy;
 				$this->tv->z++;
 				if($this->tv->z > $this->fz){
-					return null;
+					throw new EndOfBlockStreamException;
 				}
 			}
 		}

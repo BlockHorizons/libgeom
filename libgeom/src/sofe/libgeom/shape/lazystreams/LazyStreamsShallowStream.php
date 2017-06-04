@@ -28,6 +28,13 @@ class LazyStreamsShallowStream extends LazyStreamsSolidStream{
 		$this->padding = $padding;
 		$this->margin = $margin;
 		$this->maxSize = (int) ceil($maxSize);
+		$this->x0 -= ceil($margin) + 1;
+		$this->x1 += ceil($margin) + 1;
+		$this->y0 -= ceil($margin) + 1;
+		$this->y1 += ceil($margin) + 1;
+		$this->z0 -= ceil($margin) + 1;
+		$this->z1 += ceil($margin) + 1;
+		$this->rewind();
 	}
 
 	protected function validateVector(Vector3 $vector) : bool{

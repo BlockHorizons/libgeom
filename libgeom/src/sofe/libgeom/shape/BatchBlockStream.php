@@ -27,6 +27,7 @@ class BatchBlockStream extends BlockStream{
 		if(count($this->children) === 0){
 			throw new \UnexpectedValueException("Empty batch block stream");
 		}
+		$this->rewind();
 	}
 
 	/** @noinspection PhpInconsistentReturnPointsInspection */

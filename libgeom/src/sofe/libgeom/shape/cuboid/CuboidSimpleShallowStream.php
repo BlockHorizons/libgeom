@@ -34,6 +34,7 @@ class CuboidSimpleShallowStream extends BlockStream{
 		$this->cuboid = $cuboid;
 		$this->min = $cuboid->getMin();
 		$this->max = $cuboid->getMax();
+		$this->rewind();
 	}
 
 	public function nextVector(){

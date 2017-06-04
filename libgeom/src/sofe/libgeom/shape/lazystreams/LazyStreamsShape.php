@@ -86,7 +86,9 @@ abstract class LazyStreamsShape extends Shape{
 		return new LazyStreamsSolidStream($this);
 	}
 
-	public function getShallowStream(float $padding, float $margin, float $maxSize) : BlockStream{
-		return new LazyStreamsShallowStream($this, $padding, $margin, $maxSize);
+	public function getShallowStream(float $padding, float $margin) : BlockStream{
+		return new LazyStreamsShallowStream($this, $padding, $margin, $this->getMaxShallowSize($padding, $margin));
 	}
+
+	protected abstract function getMaxShallowSize(float $padding, float $margin) : int;
 }

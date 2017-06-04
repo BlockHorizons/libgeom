@@ -15,8 +15,6 @@
 
 namespace sofe\libgeom\shape;
 
-use Throwable;
-
 class EndOfBlockStreamException extends \Exception{
 	public function __construct(){
 		parent::__construct("EndOfBlockStreamException should be caught");

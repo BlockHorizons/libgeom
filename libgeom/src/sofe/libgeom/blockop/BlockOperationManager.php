@@ -35,8 +35,8 @@ class BlockOperationManager extends FileBinaryStream{
 	/** @var UserHistory[] */
 	public $activeHistories = [];
 
-	public function __construct(Plugin $plugin, string $tmpFile){
-		$this->taskId = $plugin->getServer()->getScheduler()->scheduleRepeatingTask(new OperationExecutionTask($this), 1)->getTaskId();
+	public function __construct(Plugin $plugin, string $tmpFile, float $maxTickRatio = 0.2){
+		$this->taskId = $plugin->getServer()->getScheduler()->scheduleRepeatingTask(new OperationExecutionTask($plugin, $this, $maxTickRatio), 1)->getTaskId();
 		$this->tmpFile = $tmpFile;
 		parent::__construct(fopen($this->tmpFile, "x+b"));
 	}

@@ -22,9 +22,10 @@ use sofe\libgeom\shape\EndOfBlockStreamException;
 
 class LazyStreamsSolidStream extends BlockStream{
 	protected $shape;
-	private $x0, $x1, $y0, $y1, $z0, $z1;
+	protected $x0, $x1, $y0, $y1, $z0, $z1;
 
-	private $x, $y, $z;
+	protected $x, $y, $z;
+	protected $tmpVector;
 
 	public function __construct(LazyStreamsShape $shape){
 		$this->shape = $shape;
@@ -34,29 +35,26 @@ class LazyStreamsSolidStream extends BlockStream{
 		$this->y1 = $shape->getMaxY();
 		$this->z0 = $shape->getMinZ();
 		$this->z1 = $shape->getMaxZ();
+		$this->tmpVector = new Vector3;
+		$this->rewind();
 	}
 
 	public function nextVector(){
-		static $vector = null;
-		if($vector === null){
-			$vector = new Vector3;
-		}
 		while(true){
-			++$this->x;
-			if($this->x > $this->x1){
-				++$this->y;
-				$this->x = $this->x0;
-				if($this->y > $this->y1){
-					++$this->z;
-					$this->y = $this->y0;
-					if($this->z > $this->z1){
+			++$this->tmpVector->x;
+			if($this->tmpVector->x > $this->x1){
+				++$this->tmpVector->y;
+				$this->tmpVector->x = $this->x0;
+				if($this->tmpVector->y > $this->y1){
+					++$this->tmpVector->z;
+					$this->tmpVector->y = $this->y0;
+					if($this->tmpVector->z > $this->z1){
 						throw new EndOfBlockStreamException;
 					}
 				}
 			}
-			$vector->setComponents($this->x, $this->y, $this->z);
-			if($this->validateVector($vector)){
-				return clone $vector;
+			if($this->validateVector($this->tmpVector)){
+				return clone $this->tmpVector;
 			}
 			return null; // check timing first
 		}
@@ -64,9 +62,9 @@ class LazyStreamsSolidStream extends BlockStream{
 	}
 
 	protected function rewind(){
-		$this->x = $this->x0 - 1;
-		$this->y = $this->y0;
-		$this->z = $this->z0;
+		$this->tmpVector->x = $this->x0 - 1;
+		$this->tmpVector->y = $this->y0;
+		$this->tmpVector->z = $this->z0;
 	}
 
 	public function getLevel() : Level{
@@ -77,7 +75,7 @@ class LazyStreamsSolidStream extends BlockStream{
 		return (int) ceil($this->shape->estimateSize() * 1.5); // a rough guess
 	}
 
-	protected function validateVector(Vector3$vector):bool{
+	protected function validateVector(Vector3 $vector) : bool{
 		return $this->shape->isInside($vector);
 	}
 }

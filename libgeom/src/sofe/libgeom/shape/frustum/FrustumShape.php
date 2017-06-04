@@ -175,26 +175,57 @@ class FrustumShape extends LazyStreamsShape{
 
 
 	protected function lazyGetMinX() : float{
-		// TODO: Implement lazyGetMinX() method.
-	}
-
-	protected function lazyGetMinY() : float{
-		// TODO: Implement lazyGetMinY() method.
-	}
-
-	protected function lazyGetMinZ() : float{
-		// TODO: Implement lazyGetMinZ() method.
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->x, $this->frontDir->multiply($this->baseFrontRadius)->x);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->x, $this->frontDir->multiply($this->topFrontRadius)->x);
+		return min($this->base->x - $base, $this->top->x - $top);
 	}
 
 	protected function lazyGetMaxX() : float{
-		// TODO: Implement lazyGetMaxX() method.
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->x, $this->frontDir->multiply($this->baseFrontRadius)->x);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->x, $this->frontDir->multiply($this->topFrontRadius)->x);
+		return max($this->base->x + $base, $this->top->x + $top);
+	}
+
+	protected function lazyGetMinY() : float{
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->y, $this->frontDir->multiply($this->baseFrontRadius)->y);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->y, $this->frontDir->multiply($this->topFrontRadius)->y);
+		return min($this->base->y - $base, $this->top->y - $top);
 	}
 
 	protected function lazyGetMaxY() : float{
-		// TODO: Implement lazyGetMaxY() method.
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->y, $this->frontDir->multiply($this->baseFrontRadius)->y);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->y, $this->frontDir->multiply($this->topFrontRadius)->y);
+		return max($this->base->y + $base, $this->top->y + $top);
+	}
+
+	protected function lazyGetMinZ() : float{
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->z, $this->frontDir->multiply($this->baseFrontRadius)->z);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->z, $this->frontDir->multiply($this->topFrontRadius)->z);
+		return min($this->base->z - $base, $this->top->z - $top);
 	}
 
 	protected function lazyGetMaxZ() : float{
-		// TODO: Implement lazyGetMaxZ() method.
+		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->z, $this->frontDir->multiply($this->baseFrontRadius)->z);
+		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->z, $this->frontDir->multiply($this->topFrontRadius)->z);
+		return max($this->base->z + $base, $this->top->z + $top);
+	}
+
+	private function evalObliqueRadius(float $a, float $b) : float{
+		// Nominal Animal (https://math.stackexchange.com/users/318422/nominal-animal),
+		// Minimum and maximum points of ellipse in 3D,
+		// URL (version: 2017-06-04): https://math.stackexchange.com/q/2309239
+
+		return sqrt($a * $a + $b * $b);
+	}
+
+	protected function getMaxShallowSize(float $padding, float $margin) : int{
+		$height = $this->top->subtract($this->base)->dot($this->normal); // modulus(normal) == 1
+		$height += $margin * 2;
+		$a = $this->baseRightRadius + $margin;
+		$b = $this->topRightRadius - $this->baseRightRadius;
+		$c = $this->baseFrontRadius + $margin;
+		$d = $this->topFrontRadius - $this->baseFrontRadius;
+		$integrate = $a * $c + ($a * $d + $b * $c) / 2 + $b * $d / 3;
+		return ceil($height * M_PI * $integrate * 1.3);
 	}
 }

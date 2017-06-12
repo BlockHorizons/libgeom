@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\cuboid;
 
@@ -47,13 +49,13 @@ class CuboidSolidStream extends BlockStream{
 	}
 
 	public function nextVector(){
-		$this->tv->x++;
+		++$this->tv->x;
 		if($this->ix > $this->fx){
 			$this->tv->x = $this->ix;
-			$this->tv->y++;
+			++$this->tv->y;
 			if($this->tv->y > $this->fy){
 				$this->tv->y = $this->iy;
-				$this->tv->z++;
+				++$this->tv->z;
 				if($this->tv->z > $this->fz){
 					throw new EndOfBlockStreamException;
 				}
@@ -67,6 +69,6 @@ class CuboidSolidStream extends BlockStream{
 	}
 
 	public function maxSize() : int{
-		return $this->shape->estimateSize();
+		return $this->shape->getEstimatedSize();
 	}
 }

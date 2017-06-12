@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\lazystreams;
 
@@ -23,6 +25,8 @@ abstract class LazyStreamsShape extends Shape{
 	public abstract function marginalDistance(Vector3 $vector) : float;
 
 	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
+
+	private $maxShallowSize = [];
 
 	protected function onDimenChanged(){
 		unset($this->minX, $this->minY, $this->minZ, $this->maxX, $this->maxY, $this->maxZ);
@@ -87,8 +91,15 @@ abstract class LazyStreamsShape extends Shape{
 	}
 
 	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		return new LazyStreamsShallowStream($this, $padding, $margin, $this->getMaxShallowSize($padding, $margin));
+		return new LazyStreamsShallowStream($this, $padding, $margin, $this->lazyGetMaxShallowSize($padding, $margin));
 	}
 
-	protected abstract function getMaxShallowSize(float $padding, float $margin) : int;
+	public function getMaxShallowSize(float $padding, float $margin) : int{
+		if(!isset($this->maxShallowSize[$padding . ":" . $margin])){
+			$this->maxShallowSize[$padding . ":" . $margin] = $this->lazyGetMaxShallowSize($padding, $margin);
+		}
+		return $this->maxShallowSize[$padding . ":" . $margin];
+	}
+
+	protected abstract function lazyGetMaxShallowSize(float $padding, float $margin) : int;
 }

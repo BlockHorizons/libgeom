@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\ellipsoid;
 
@@ -58,7 +60,7 @@ class EllipsoidShape extends LazyStreamsShape{
 		return $diff->length() - $radial->length();
 	}
 
-	public function estimateSize() : int{
+	protected function estimateSize() : int{
 		return 4 / 3 * M_PI * $this->xrad * $this->yrad * $this->zrad;
 	}
 
@@ -86,8 +88,8 @@ class EllipsoidShape extends LazyStreamsShape{
 		return $this->center->z + $this->zrad;
 	}
 
-	protected function getMaxShallowSize(float $padding, float $margin) : int{
-		return ceil(1.3 * 4 / 3 * M_PI * (
+	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
+		return (int)ceil(1.3 * 4 / 3 * M_PI * (
 				($this->xrad + $margin) * ($this->yrad + $margin) * ($this->zrad + $margin) -
 				($this->xrad - $padding) * ($this->yrad - $padding) * ($this->zrad - $padding)));
 	}

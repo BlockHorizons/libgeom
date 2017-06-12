@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\blockop;
 
@@ -43,6 +45,8 @@ class BlockOperationManager extends FileBinaryStream{
 
 	public function dispose(Plugin $plugin){
 		$plugin->getServer()->getScheduler()->cancelTask($this->taskId);
+		fclose($this->fh);
+		unlink($this->tmpFile);
 	}
 
 
@@ -143,7 +147,7 @@ class BlockOperationManager extends FileBinaryStream{
 
 		$opId = $this->getInt();
 		assert($opId === $id, "Operation not stored correctly");
-		$levelId = $this->getInt(); // why did I even store this?
+		$this->getInt(); // levelId; why did I even store this?
 		return [$this->getOffset(), $end];
 	}
 
@@ -222,7 +226,7 @@ class BlockOperationManager extends FileBinaryStream{
 		// total: 21 bytes
 	}
 
-	public function get($len){
+	public function get(int $len){
 		if(!isset($this->lock)){
 			throw new \InvalidStateException("Lock the manager before reading");
 		}
@@ -230,7 +234,7 @@ class BlockOperationManager extends FileBinaryStream{
 		return parent::get($len);
 	}
 
-	public function put($str){
+	public function put(string $str){
 		if(!isset($this->lock)){
 			throw new \InvalidStateException("Lock the manager before reading");
 		}

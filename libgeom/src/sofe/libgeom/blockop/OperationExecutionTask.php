@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\blockop;
 
@@ -37,7 +39,7 @@ class OperationExecutionTask extends PluginTask{
 	public function onRun($currentTick){
 		$start = microtime(true);
 		while(microtime(true) - $start < $this->maxTickTime){
-			for($i = 0; $i < 100; $i++){ // prevent calling microtime(true) too often
+			for($i = 0; $i < 100; ++$i){ // prevent calling microtime(true) too often
 				$this->doCycle();
 				if($this->activeOperation === null){
 					break 2;

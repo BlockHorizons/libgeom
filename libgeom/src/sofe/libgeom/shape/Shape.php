@@ -13,14 +13,22 @@
  *
 */
 
+declare(strict_types=1);
+
 namespace sofe\libgeom\shape;
 
 use pocketmine\math\Vector3;
 
 abstract class Shape extends SoftLevelStorage{
+	private $estimatedSize;
+
 	public abstract function isInside(Vector3 $vector) : bool;
 
-	public abstract function estimateSize() : int;
+	public function getEstimatedSize() : int{
+		return $this->estimatedSize ?? ($this->estimatedSize = $this->estimateSize());
+	}
+
+	protected abstract function estimateSize() : int;
 
 	public abstract function getSolidStream() : BlockStream;
 

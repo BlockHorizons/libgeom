@@ -15,15 +15,7 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\blockop;
+namespace sofe\libgeom\shape;
 
-use pocketmine\block\Block;
-
-interface BlockReplacer{
-	/**
-	 * @param Block $block
-	 *
-	 * @return Block|null
-	 */
-	public function getReplacement(Block $block);
+class UnsupportedOperationException extends \RuntimeException{
 }

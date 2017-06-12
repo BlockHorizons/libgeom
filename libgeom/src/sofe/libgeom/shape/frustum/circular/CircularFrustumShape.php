@@ -11,16 +11,18 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
 
-namespace sofe\libgeom\shape\frustum;
+declare(strict_types=1);
+
+namespace sofe\libgeom\shape\frustum\circular;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
 
 /**
- * A FrustumShape refers to a conical frustum, a cylinder or a cone.
+ * A CircularFrustumShape refers to a conical frustum, a cylinder or a cone.
  * The shape can be <b>skewed</b>, <b>oblique</b> and <b>elliptical</b>.
  *
  * The axis of the shape refers to the line passing through the center of the base and the center of the top (for
@@ -51,7 +53,7 @@ use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
  * front-back directions of the FrustomShape. By the right-hand rule, normal cross rightDir = frontDir, where normal
  * points upwards.
  */
-class FrustumShape extends LazyStreamsShape{
+class CircularFrustumShape extends LazyStreamsShape{
 	/** @var Vector3 */
 	private $base, $top;
 	/** @var Vector3 */
@@ -157,7 +159,7 @@ class FrustumShape extends LazyStreamsShape{
 		return abs($vertDistance) < abs($horizDistance) ? $vertDistance : $horizDistance;
 	}
 
-	public function estimateSize() : int{
+	protected function estimateSize() : int{
 		// A(h) = area of layer h, where h at base = 0 and h at top = 1
 		// = pi (baseRightRadius + h (topRightRadius - baseRightRadius)) (baseFrontRadius + h (topFrontRadius - baseFrontRadius))
 		// size = (top - base) dot normal * integrate of A(h) on dh from h = 0 to h = 1
@@ -170,7 +172,7 @@ class FrustumShape extends LazyStreamsShape{
 		$c = $this->baseFrontRadius;
 		$d = $this->topFrontRadius - $this->baseFrontRadius;
 		$integrate = $a * $c + ($a * $d + $b * $c) / 2 + $b * $d / 3;
-		return round($height * M_PI * $integrate);
+		return (int) round($height * M_PI * $integrate);
 	}
 
 
@@ -218,7 +220,7 @@ class FrustumShape extends LazyStreamsShape{
 		return sqrt($a * $a + $b * $b);
 	}
 
-	protected function getMaxShallowSize(float $padding, float $margin) : int{
+	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
 		$height = $this->top->subtract($this->base)->dot($this->normal); // modulus(normal) == 1
 		$height += $margin * 2;
 		$a = $this->baseRightRadius + $margin;
@@ -226,6 +228,6 @@ class FrustumShape extends LazyStreamsShape{
 		$c = $this->baseFrontRadius + $margin;
 		$d = $this->topFrontRadius - $this->baseFrontRadius;
 		$integrate = $a * $c + ($a * $d + $b * $c) / 2 + $b * $d / 3;
-		return ceil($height * M_PI * $integrate * 1.3);
+		return (int) ceil($height * M_PI * $integrate * 1.3);
 	}
 }

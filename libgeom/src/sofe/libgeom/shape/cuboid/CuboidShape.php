@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\cuboid;
 
@@ -42,7 +44,7 @@ class CuboidShape extends Shape{
 			$this->min->z <= $vector->z and $vector->z <= $this->max->z;
 	}
 
-	public function estimateSize() : int{
+	protected function estimateSize() : int{
 		$diff = $this->max->subtract($this->min);
 		return ($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1);
 	}
@@ -52,7 +54,7 @@ class CuboidShape extends Shape{
 	}
 
 	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		for($i = 1 - (int) round($padding); $i <= (int) round($margin); $i++){
+		for($i = 1 - (int) round($padding); $i <= (int) round($margin); ++$i){
 			$children[] = new CuboidSimpleShallowStream($this);
 		}
 		if(!isset($children)){

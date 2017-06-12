@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\lazystreams;
 
@@ -72,7 +74,7 @@ class LazyStreamsSolidStream extends BlockStream{
 	}
 
 	public function maxSize() : int{
-		return (int) ceil($this->shape->estimateSize() * 1.5); // a rough guess
+		return (int) ceil($this->shape->getEstimatedSize() * 1.5); // a rough guess
 	}
 
 	protected function validateVector(Vector3 $vector) : bool{

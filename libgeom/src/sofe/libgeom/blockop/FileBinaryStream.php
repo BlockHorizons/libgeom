@@ -11,16 +11,16 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\blockop;
 
-use pocketmine\item\Item;
 use pocketmine\utils\Binary;
-use pocketmine\utils\BinaryStream;
 use pocketmine\utils\UUID;
 
-class FileBinaryStream extends BinaryStream{
+class FileBinaryStream{
 	/** @var resource */
 	protected $fh;
 
@@ -28,27 +28,23 @@ class FileBinaryStream extends BinaryStream{
 		$this->fh = $fh;
 	}
 
-	public function getBuffer(){
-		throw new \BadMethodCallException;
-	}
-
 	public function reset(){
 		fseek($this->fh, 0);
 	}
 
-	public function getOffset(){
+	public function getOffset() : int{
 		return ftell($this->fh);
 	}
 
-	public function setOffset($offset){
+	public function setOffset(int $offset){
 		fseek($this->fh, $offset);
 	}
 
-	public function get($len){
+	public function get(int $len){
 		return fread($this->fh, $len);
 	}
 
-	public function put($str){
+	public function put(string $str){
 		fwrite($this->fh, $str);
 	}
 
@@ -56,107 +52,107 @@ class FileBinaryStream extends BinaryStream{
 		return (bool) $this->getByte();
 	}
 
-	public function putBool($v){
-		$this->putByte((bool) $v);
+	public function putBool(bool $v){
+		$this->putByte((int) $v);
 	}
 
-	public function getLong(){
+	public function getLong() : int{
 		return Binary::readLong($this->get(8));
 	}
 
-	public function putLong($v){
+	public function putLong(int $v){
 		$this->put(Binary::writeLong($v));
 	}
 
-	public function getInt(){
+	public function getInt() : int{
 		return Binary::readInt($this->get(4));
 	}
 
-	public function putInt($v){
+	public function putInt(int $v){
 		$this->put(Binary::writeInt($v));
 	}
 
-	public function getLLong(){
+	public function getLLong() : int{
 		return Binary::readLLong($this->get(8));
 	}
 
-	public function putLLong($v){
+	public function putLLong(int $v){
 		$this->put(Binary::writeLLong($v));
 	}
 
-	public function getLInt(){
+	public function getLInt() : int{
 		return Binary::readLInt($this->get(4));
 	}
 
-	public function putLInt($v){
+	public function putLInt(int $v){
 		$this->put(Binary::writeLInt($v));
 	}
 
-	public function getSignedShort(){
+	public function getSignedShort() : int{
 		return Binary::readSignedShort($this->get(2));
 	}
 
-	public function putShort($v){
+	public function putShort(int $v){
 		$this->put(Binary::writeShort($v));
 	}
 
-	public function getShort(){
+	public function getShort() : int{
 		return Binary::readShort($this->get(2));
 	}
 
-	public function putSignedShort($v){
+	public function putSignedShort(int $v){
 		$this->put(Binary::writeShort($v));
 	}
 
-	public function getFloat(int $accuracy = -1){
-		return Binary::readFloat($this->get(4), $accuracy);
+	public function getFloat() : float{
+		return Binary::readFloat($this->get(4));
 	}
 
-	public function putFloat($v){
+	public function putFloat(float $v){
 		$this->put(Binary::writeFloat($v));
 	}
 
-	public function getLShort($signed = true){
+	public function getLShort(bool $signed = true) : int{
 		return $signed ? Binary::readSignedLShort($this->get(2)) : Binary::readLShort($this->get(2));
 	}
 
-	public function putLShort($v){
+	public function putLShort(int $v){
 		$this->put(Binary::writeLShort($v));
 	}
 
-	public function getLFloat(int $accuracy = -1){
-		return Binary::readLFloat($this->get(4), $accuracy);
+	public function getLFloat() : float{
+		return Binary::readLFloat($this->get(4));
 	}
 
-	public function putLFloat($v){
+	public function putLFloat(float $v){
 		$this->put(Binary::writeLFloat($v));
 	}
 
-	public function getTriad(){
+	public function getTriad() : int{
 		return Binary::readTriad($this->get(3));
 	}
 
-	public function putTriad($v){
+	public function putTriad(int $v){
 		$this->put(Binary::writeTriad($v));
 	}
 
-	public function getLTriad(){
+	public function getLTriad() : int{
 		return Binary::readLTriad($this->get(3));
 	}
 
-	public function putLTriad($v){
+	public function putLTriad(int $v){
 		$this->put(Binary::writeLTriad($v));
 	}
 
-	public function getByte(){
+	public function getByte() : int{
 		return ord($this->get(1));
 	}
 
-	public function putByte($v){
+	public function putByte(int $v){
 		$this->put(chr($v));
 	}
 
-	public function getUUID(){
+	public function getUUID() : UUID{
 		//This is actually two little-endian longs: UUID Most followed by UUID Least
 		$part1 = $this->getLInt();
 		$part0 = $this->getLInt();
@@ -172,87 +168,7 @@ class FileBinaryStream extends BinaryStream{
 		$this->putLInt($uuid->getPart(2));
 	}
 
-	public function getSlot(){
-		$id = $this->getVarInt();
-
-		if($id <= 0){
-			return Item::get(0, 0, 0);
-		}
-		$auxValue = $this->getVarInt();
-		$data = $auxValue >> 8;
-		$cnt = $auxValue & 0xff;
-
-		$nbtLen = $this->getLShort();
-		$nbt = "";
-
-		if($nbtLen > 0){
-			$nbt = $this->get($nbtLen);
-		}
-
-		return Item::get(
-			$id,
-			$data,
-			$cnt,
-			$nbt
-		);
-	}
-
-	public function putSlot(Item $item){
-		if($item->getId() === 0){
-			$this->putVarInt(0);
-			return;
-		}
-
-		$this->putVarInt($item->getId());
-		$auxValue = (($item->getDamage() ?? -1) << 8) | $item->getCount();
-		$this->putVarInt($auxValue);
-		$nbt = $item->getCompoundTag();
-		$this->putLShort(strlen($nbt));
-		$this->put($nbt);
-	}
-
-	public function getString(){
-		return $this->get($this->getUnsignedVarInt());
-	}
-
-	public function putString($v){
-		$this->putUnsignedVarInt(strlen($v));
-		$this->put($v);
-	}
-
-	public function getUnsignedVarInt(){
-		return Binary::readUnsignedVarInt($this);
-	}
-
-	public function putUnsignedVarInt($v){
-		$this->put(Binary::writeUnsignedVarInt($v));
-	}
-
-	public function getVarInt(){
-		return Binary::readVarInt($this);
-	}
-
-	public function putVarInt($v){
-		$this->put(Binary::writeVarInt($v));
-	}
-
-	public function getUnsignedVarLong(){
-		return Binary::readUnsignedVarLong($this);
-	}
-
-	public function putUnsignedVarLong($v){
-		$this->put(Binary::writeUnsignedVarLong($v));
-	}
-
-	public function getVarLong(){
-		return Binary::readVarLong($this);
-	}
-
-	public function putVarLong($v){
-		$this->put(Binary::writeVarLong($v));
-	}
-
-	public function feof(){
+	public function feof() : bool{
 		return feof($this->fh);
 	}
 }

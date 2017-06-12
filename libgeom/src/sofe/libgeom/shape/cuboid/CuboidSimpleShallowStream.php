@@ -11,7 +11,9 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
-*/
+ */
+
+declare(strict_types=1);
 
 namespace sofe\libgeom\shape\cuboid;
 
@@ -39,12 +41,12 @@ class CuboidSimpleShallowStream extends BlockStream{
 
 	public function nextVector(){
 		velociraptor:
-		$this->a++;
+		++$this->a;
 		if($this->a > $this->maxA){
 			$this->a = $this->minA;
 			++$this->b;
 			if($this->b > $this->maxB){
-				$this->phase++;
+				++$this->phase;
 				if($this->phase >= 6){
 					throw new EndOfBlockStreamException;
 				}

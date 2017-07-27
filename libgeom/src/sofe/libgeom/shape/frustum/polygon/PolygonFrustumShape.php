@@ -19,9 +19,12 @@ namespace sofe\libgeom\shape\frustum\polygon;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 use sofe\libgeom\shape\BlockStream;
 use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
+use sofe\libgeom\shape\LibgeomBinaryStream;
 use sofe\libgeom\shape\LibgeomMathUtils;
+use sofe\libgeom\shape\Shape;
 use sofe\libgeom\shape\UnsupportedOperationException;
 
 /**
@@ -194,5 +197,34 @@ class PolygonFrustumShape extends LazyStreamsShape{
 
 	public function getTopArea() : float{
 		return $this->baseAreaCache * $this->topBaseRatio ** 2;
+	}
+
+
+	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
+		Server $server, LibgeomBinaryStream $stream) : Shape{
+		$level = $server->getLevelByName($stream->getString());
+		$baseAnchor = new Vector3();
+		$stream->getVector3f($baseAnchor->x, $baseAnchor->y, $baseAnchor->z);
+		$size = $stream->getShort();
+		$basePolygon = [];
+		for($i = 0; $i < $size; ++$i){
+			$basePolygon[] = $v = new Vector3();
+			$stream->getVector3f($v->x, $v->y, $v->z);
+		}
+		$topAnchor = new Vector3();
+		$stream->getVector3f($topAnchor->x, $topAnchor->y, $topAnchor->z);
+		$topBaseRatio = $stream->getFloat();
+		return new PolygonFrustumShape($level, $baseAnchor, $basePolygon, $topAnchor, $topBaseRatio);
+	}
+
+	public function toBinary(LibgeomBinaryStream $stream){
+		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putVector3f($this->baseAnchor->x, $this->baseAnchor->y, $this->baseAnchor->z);
+		$stream->putShort(count($this->basePolygon));
+		foreach($this->basePolygon as $point){
+			$stream->putVector3f($point->x, $point->y, $point->z);
+		}
+		$stream->putVector3f($this->topAnchor->x, $this->topAnchor->y, $this->topAnchor->z);
+		$stream->putFloat($this->topBaseRatio);
 	}
 }

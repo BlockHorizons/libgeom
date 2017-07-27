@@ -19,7 +19,10 @@ namespace sofe\libgeom\shape\ellipsoid;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
+use sofe\libgeom\shape\LibgeomBinaryStream;
+use sofe\libgeom\shape\Shape;
 
 class EllipsoidShape extends LazyStreamsShape{
 	/** @var Vector3 */
@@ -89,8 +92,24 @@ class EllipsoidShape extends LazyStreamsShape{
 	}
 
 	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
-		return (int)ceil(1.3 * 4 / 3 * M_PI * (
+		return (int) ceil(1.3 * 4 / 3 * M_PI * (
 				($this->xrad + $margin) * ($this->yrad + $margin) * ($this->zrad + $margin) -
 				($this->xrad - $padding) * ($this->yrad - $padding) * ($this->zrad - $padding)));
+	}
+
+
+	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
+		Server $server, LibgeomBinaryStream $stream) : Shape{
+		$level = $server->getLevelByName($stream->getString());
+		$center = new Vector3();
+		$stream->getBlockPosition($center->x, $center->y, $center->z);
+		$stream->getVector3f($xrad, $yrad, $zrad);
+		return new EllipsoidShape($level, $center, $xrad, $yrad, $zrad);
+	}
+
+	public function toBinary(LibgeomBinaryStream $stream){
+		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putVector3f($this->center->x, $this->center->y, $this->center->z);
+		$stream->putVector3f($this->xrad,$this->yrad,$this->zrad);
 	}
 }

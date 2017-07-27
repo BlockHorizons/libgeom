@@ -19,8 +19,10 @@ namespace sofe\libgeom\shape\cuboid;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 use sofe\libgeom\shape\BatchBlockStream;
 use sofe\libgeom\shape\BlockStream;
+use sofe\libgeom\shape\LibgeomBinaryStream;
 use sofe\libgeom\shape\Shape;
 
 class CuboidShape extends Shape{
@@ -122,5 +124,30 @@ class CuboidShape extends Shape{
 		$m->y = min($this->max->y, max($this->min->y, $vector->y));
 		$m->z = min($this->max->z, max($this->min->z, $vector->z));
 		return $vector->distance($m);
+	}
+
+	public function getChunksInvolved() : array{
+		$chunks = [];
+		for($X = $this->min->x >> 4; $X <= $this->max->x >> 4; ++$X){
+			for($Z = $this->min->z >> 4; $Z <= $this->max->z >> 4; ++$Z){
+				$chunks[] = Level::chunkHash($X, $Z);
+			}
+		}
+		return $chunks;
+	}
+
+
+	public static function fromBinary(Server $server, LibgeomBinaryStream $stream) : Shape{
+		$from = new Vector3();
+		$to = new Vector3();
+		$stream->getBlockPosition($from->x, $from->y, $from->z);
+		$stream->getBlockPosition($to->x, $to->y, $to->z);
+		return new CuboidShape($from, $to, $server->getLevelByName($stream->getString()));
+	}
+
+	public function toBinary(LibgeomBinaryStream $stream){
+		$stream->putBlockPosition($this->from->x, $this->from->y, $this->from->z);
+		$stream->putBlockPosition($this->to->x, $this->to->y, $this->to->z);
+		$stream->putString($this->getLevel()->getFolderName());
 	}
 }

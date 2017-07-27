@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace sofe\libgeom\shape;
 
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 
 abstract class Shape extends SoftLevelStorage{
 	private $estimatedSize;
@@ -35,4 +36,29 @@ abstract class Shape extends SoftLevelStorage{
 	public abstract function getShallowStream(float $padding, float $margin) : BlockStream;
 
 	public abstract function marginalDistance(Vector3 $vector) : float;
+
+	/**
+	 * Returns an array of the Level::chunkHash()s of the chunks involved with this shape
+	 *
+	 * @return int[]
+	 */
+	public abstract function getChunksInvolved() : array;
+
+	/**
+	 * By calling <T extends Shape> T::fromBinary(), a new T instance should be created.
+	 *
+	 * This method must be overridden in all non-abstract subclasses.
+	 *
+	 * @param Server              $server
+	 * @param LibgeomBinaryStream $stream
+	 *
+	 * @return Shape
+	 * @throws \Exception
+	 */
+	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
+		Server $server, LibgeomBinaryStream $stream) : Shape{
+		throw new \Exception("Unimplemented method " . static::class . "::fromBinary(\$binary)");
+	}
+
+	public abstract function toBinary(LibgeomBinaryStream $stream);
 }

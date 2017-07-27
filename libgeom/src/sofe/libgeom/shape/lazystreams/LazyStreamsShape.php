@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 namespace sofe\libgeom\shape\lazystreams;
 
+use pocketmine\level\Level;
+use pocketmine\math\Vector3;
 use sofe\libgeom\shape\BlockStream;
 use sofe\libgeom\shape\Shape;
 
@@ -99,4 +101,14 @@ abstract class LazyStreamsShape extends Shape{
 	}
 
 	protected abstract function lazyGetMaxShallowSize(float $padding, float $margin) : int;
+
+	public function getChunksInvolved() : array{
+		$chunks = [];
+		for($X = $this->getMinX() >> 4; $X <= $this->getMaxX() >> 4; ++$X){
+			for($Z = $this->getMinZ() >> 4; $Z <= $this->getMaxZ() >> 4; ++$Z){
+				$chunks[] = Level::chunkHash($X, $Z);
+			}
+		}
+		return $chunks;
+	}
 }

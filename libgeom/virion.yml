@@ -1,5 +1,5 @@
 name: libgeom
 version: 1.1.0
-php: [7.0]
+api: [3.0.0-ALPHA6, 3.0.0-ALPHA7]
 antigen: sofe\libgeom
 author: SOFe

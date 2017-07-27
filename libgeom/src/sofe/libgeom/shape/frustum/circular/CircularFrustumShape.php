@@ -19,7 +19,10 @@ namespace sofe\libgeom\shape\frustum\circular;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\Server;
 use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
+use sofe\libgeom\shape\LibgeomBinaryStream;
+use sofe\libgeom\shape\Shape;
 
 /**
  * A CircularFrustumShape refers to a conical frustum, a cylinder or a cone.
@@ -229,5 +232,34 @@ class CircularFrustumShape extends LazyStreamsShape{
 		$d = $this->topFrontRadius - $this->baseFrontRadius;
 		$integrate = $a * $c + ($a * $d + $b * $c) / 2 + $b * $d / 3;
 		return (int) ceil($height * M_PI * $integrate * 1.3);
+	}
+
+
+	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
+		Server $server, LibgeomBinaryStream $stream) : Shape{
+		$level = $server->getLevelByName($stream->getString());
+		$base = new Vector3();
+		$baseRightCircum = new Vector3();
+		$top = new Vector3();
+		$normal = new Vector3();
+		$stream->getVector3f($base->x, $base->y, $base->z);
+		$stream->getVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
+		$baseFrontRadius = $stream->getFloat();
+		$stream->getVector3f($top->x, $top->y, $top->z);
+		$topRightRadius = $stream->getFloat();
+		$topFrontRadius = $stream->getFloat();
+		$stream->getVector3f($normal->x, $normal->y, $normal->z);
+		return new CircularFrustumShape($level, $base, $baseRightCircum, $baseFrontRadius, $top, $topRightRadius, $topFrontRadius, $normal);
+	}
+
+	public function toBinary(LibgeomBinaryStream $stream){
+		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putVector3f($this->base->x, $this->base->y, $this->base->z);
+		$stream->putVector3f($this->baseRightCircum->x, $this->baseRightCircum->y, $this->baseRightCircum->z);
+		$stream->putFloat($this->baseFrontRadius);
+		$stream->putVector3f($this->top->x, $this->top->y, $this->top->z);
+		$stream->putFloat($this->topRightRadius);
+		$stream->putFloat($this->topFrontRadius);
+		$stream->putVector3f($this->normal->x, $this->normal->y, $this->normal->z);
 	}
 }

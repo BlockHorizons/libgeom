@@ -103,4 +103,24 @@ class CuboidShape extends Shape{
 		$this->recalcMinMax();
 		return $this;
 	}
+
+	public function marginalDistance(Vector3 $vector) : float{
+		$diffs = [
+			$this->max->x - $vector->x,
+			$vector->x - $this->min->x,
+			$this->max->y - $vector->y,
+			$vector->y - $this->min->y,
+			$this->max->z - $vector->z,
+			$vector->z - $this->min->z,
+		];
+		$min = min($diffs);
+		if($min >= 0){
+			return $min;
+		}
+		$m = new Vector3;
+		$m->x = min($this->max->x, max($this->min->x, $vector->x));
+		$m->y = min($this->max->y, max($this->min->y, $vector->y));
+		$m->z = min($this->max->z, max($this->min->z, $vector->z));
+		return $vector->distance($m);
+	}
 }

@@ -33,4 +33,6 @@ abstract class Shape extends SoftLevelStorage{
 	public abstract function getSolidStream() : BlockStream;
 
 	public abstract function getShallowStream(float $padding, float $margin) : BlockStream;
+
+	public abstract function marginalDistance(Vector3 $vector) : float;
 }

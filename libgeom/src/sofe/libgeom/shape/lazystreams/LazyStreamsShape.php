@@ -17,13 +17,10 @@ declare(strict_types=1);
 
 namespace sofe\libgeom\shape\lazystreams;
 
-use pocketmine\math\Vector3;
 use sofe\libgeom\shape\BlockStream;
 use sofe\libgeom\shape\Shape;
 
 abstract class LazyStreamsShape extends Shape{
-	public abstract function marginalDistance(Vector3 $vector) : float;
-
 	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
 
 	private $maxShallowSize = [];

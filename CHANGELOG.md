@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 Note that changes backward-incompatibile for subclasses extending `Shape` will
 **not** lead to a bump in the major version.
 
-## [Unreleased]
+## [Unreleased] (2.0.0)
 ### Added
 - `Shape::marginalDistance()` (formerly in `LazyStreamsShape`)
 - `LibgeomBinaryStream` for saving shapes
@@ -17,6 +17,11 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`
+- `BlockStream` is replaced by [`Generator`](https://php.net/generator) with method signature changes
+- A major namespace refactor
+
+### Removed
+- Unused classes:
 
 ## 1.0.0 2017-07-20
 ### Removed

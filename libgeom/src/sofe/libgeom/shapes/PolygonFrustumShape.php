@@ -15,17 +15,16 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape\frustum\polygon;
+namespace sofe\libgeom\shapes;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
-use sofe\libgeom\shape\BlockStream;
-use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
-use sofe\libgeom\shape\LibgeomBinaryStream;
-use sofe\libgeom\shape\LibgeomMathUtils;
-use sofe\libgeom\shape\Shape;
-use sofe\libgeom\shape\UnsupportedOperationException;
+use sofe\libgeom\LazyStreamsShape;
+use sofe\libgeom\LibgeomBinaryStream;
+use sofe\libgeom\LibgeomMathUtils;
+use sofe\libgeom\Shape;
+use sofe\libgeom\UnsupportedOperationException;
 
 /**
  * A PolygonFrustumShape refers to a prism, a frustum or a pyramid.
@@ -169,11 +168,20 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		return (int) ceil($this->getEstimatedSize() * ($dx + $margin) * ($dy + $margin) * ($dz + $margin) / $dx / $dy / $dz);
 	}
 
-	public function getShallowStream(float $padding, float $margin) : BlockStream{
+	/** @noinspection PhpInconsistentReturnPointsInspection
+	 * @param Vector3 $vector
+	 * @param float   $padding
+	 * @param float   $margin
+	 *
+	 * @return \Generator
+	 *
+	 * @throws UnsupportedOperationException
+	 */
+	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
 		if($this->isSelfIntersecting){
 			throw new UnsupportedOperationException("Shallow self-intersecting frustums are not supported");
 		}
-		return parent::getShallowStream($padding, $margin);
+		return parent::getShallowStream($vector, $padding, $margin);
 	}
 
 	protected function estimateSize() : int{

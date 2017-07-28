@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape;
+namespace sofe\libgeom;
 
 class UnsupportedOperationException extends \RuntimeException{
 }

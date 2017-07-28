@@ -15,12 +15,10 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape\lazystreams;
+namespace sofe\libgeom;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
-use sofe\libgeom\shape\BlockStream;
-use sofe\libgeom\shape\Shape;
 
 abstract class LazyStreamsShape extends Shape{
 	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
@@ -85,12 +83,31 @@ abstract class LazyStreamsShape extends Shape{
 
 	protected abstract function lazyGetMaxZ() : float;
 
-	public function getSolidStream() : BlockStream{
-		return new LazyStreamsSolidStream($this);
+	public function getSolidStream(Vector3 $vector) : \Generator{
+		for($vector->x = $this->getMinX(); $vector->x <= $this->getMaxX(); ++$vector->x){
+			for($vector->y = $this->getMinY(); $vector->y <= $this->getMaxY(); ++$vector->y){
+				for($vector->z = $this->getMinZ(); $vector->z <= $this->getMaxZ(); ++$vector->z){
+					if($this->isInside($vector)){
+						yield true;
+					}
+				}
+			}
+		}
 	}
 
-	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		return new LazyStreamsShallowStream($this, $padding, $margin, $this->lazyGetMaxShallowSize($padding, $margin));
+	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
+		for($vector->x = $this->getMinX(); $vector->x <= $this->getMaxX(); ++$vector->x){
+			for($vector->y = $this->getMinY(); $vector->y <= $this->getMaxY(); ++$vector->y){
+				for($vector->z = $this->getMinZ(); $vector->z <= $this->getMaxZ(); ++$vector->z){
+					$dist = $this->marginalDistance($vector);
+					if(-$padding <= $dist && $dist <= $margin - 1){
+						yield true;
+					}else{
+						yield false;
+					}
+				}
+			}
+		}
 	}
 
 	public function getMaxShallowSize(float $padding, float $margin) : int{

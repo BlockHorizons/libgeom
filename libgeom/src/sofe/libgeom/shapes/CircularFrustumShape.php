@@ -15,14 +15,14 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape\frustum\circular;
+namespace sofe\libgeom\shapes;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
-use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
-use sofe\libgeom\shape\LibgeomBinaryStream;
-use sofe\libgeom\shape\Shape;
+use sofe\libgeom\LazyStreamsShape;
+use sofe\libgeom\LibgeomBinaryStream;
+use sofe\libgeom\Shape;
 
 /**
  * A CircularFrustumShape refers to a conical frustum, a cylinder or a cone.

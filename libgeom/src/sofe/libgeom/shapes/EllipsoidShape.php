@@ -15,14 +15,14 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape\ellipsoid;
+namespace sofe\libgeom\shapes;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
-use sofe\libgeom\shape\lazystreams\LazyStreamsShape;
-use sofe\libgeom\shape\LibgeomBinaryStream;
-use sofe\libgeom\shape\Shape;
+use sofe\libgeom\LazyStreamsShape;
+use sofe\libgeom\LibgeomBinaryStream;
+use sofe\libgeom\Shape;
 
 class EllipsoidShape extends LazyStreamsShape{
 	/** @var Vector3 */

@@ -15,15 +15,13 @@
 
 declare(strict_types=1);
 
-namespace sofe\libgeom\shape\cuboid;
+namespace sofe\libgeom\shapes;
 
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
-use sofe\libgeom\shape\BatchBlockStream;
-use sofe\libgeom\shape\BlockStream;
-use sofe\libgeom\shape\LibgeomBinaryStream;
-use sofe\libgeom\shape\Shape;
+use sofe\libgeom\LibgeomBinaryStream;
+use sofe\libgeom\Shape;
 
 class CuboidShape extends Shape{
 	/** @var Vector3 */
@@ -51,18 +49,41 @@ class CuboidShape extends Shape{
 		return ($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1);
 	}
 
-	public function getSolidStream() : BlockStream{
-		return new CuboidSolidStream($this);
+	public function getSolidStream(Vector3 $vector) : \Generator{
+		for($vector->x = $this->min->x; $vector->x <= $this->max->x; ++$vector->x){
+			for($vector->y = $this->min->y; $vector->y <= $this->max->y; ++$vector->y){
+				for($vector->z = $this->min->z; $vector->z <= $this->max->z; ++$vector->z){
+					yield true;
+				}
+			}
+		}
 	}
 
-	public function getShallowStream(float $padding, float $margin) : BlockStream{
-		for($i = 1 - (int) round($padding); $i <= (int) round($margin); ++$i){
-			$children[] = new CuboidSimpleShallowStream($this);
+	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
+		for($l = 1 - (int) round($padding); $l <= (int) round($margin); ++$l){
+			$i = 0;
+			for($vector->y = $this->min->y - $l; $i < 2; $vector->y = $this->max->y + $l, ++$i){
+				for($vector->x = $this->min->x - $l; $vector->x <= $this->max->x + $l; ++$vector->x){
+					for($vector->z = $this->min->z - $l; $vector->z <= $this->max->z + $l; ++$vector->z){
+						yield true;
+					}
+				}
+			}
+			for($vector->z = $this->min->z - $l; $i < 4; $vector->z = $this->max->z + $l, ++$i){
+				for($vector->x = $this->min->x - $l; $vector->x <= $this->max->x + $l; ++$vector->x){
+					for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+						yield true;
+					}
+				}
+			}
+			for($vector->x = $this->min->x- $l; $i < 6; $vector->x = $this->max->x + $l, ++$i){
+				for($vector->z = $this->min->z - $l + 1; $vector->z <= $this->max->z + $l - 1; ++$vector->z){
+					for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+						yield true;
+					}
+				}
+			}
 		}
-		if(!isset($children)){
-			throw new \InvalidArgumentException("Empty shallow stream");
-		}
-		return new BatchBlockStream($children);
 	}
 
 	public function recalcMinMax(){
@@ -117,7 +138,7 @@ class CuboidShape extends Shape{
 		];
 		$min = min($diffs);
 		if($min >= 0){
-			return $min;
+			return -$min;
 		}
 		$m = new Vector3;
 		$m->x = min($this->max->x, max($this->min->x, $vector->x));

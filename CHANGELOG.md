@@ -18,10 +18,12 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`
 - `BlockStream` is replaced by [`Generator`](https://php.net/generator) with method signature changes
-- A major namespace refactor
+- A major namespace refactor from `sofe\libgeom\shape` to `sofe\libgeom`. Shape implementations moved to `sofe\libgeom\shapes` (note the plural "shapes").
 
 ### Removed
-- Unused classes:
+- Unused classes
+  - `BlockStream`, `BatchBlockStream` and their subclasses
+  - `EndOfBlockStreamException`
 
 ## 1.0.0 2017-07-20
 ### Removed

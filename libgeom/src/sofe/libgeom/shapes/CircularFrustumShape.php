@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace sofe\libgeom\shapes;
 
+use LegendsOfMCPE\WorldEditArt\Epsilon\IShape;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;

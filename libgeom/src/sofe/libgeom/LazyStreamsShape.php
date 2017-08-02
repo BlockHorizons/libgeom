@@ -21,9 +21,9 @@ use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 
 abstract class LazyStreamsShape extends Shape{
-	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
-
 	private $maxShallowSize = [];
+
+	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
 
 	protected function onDimenChanged(){
 		unset($this->minX, $this->minY, $this->minZ, $this->maxX, $this->maxY, $this->maxZ);
@@ -82,6 +82,7 @@ abstract class LazyStreamsShape extends Shape{
 	protected abstract function lazyGetMaxY() : float;
 
 	protected abstract function lazyGetMaxZ() : float;
+
 
 	public function getSolidStream(Vector3 $vector) : \Generator{
 		for($vector->x = $this->getMinX(); $vector->x <= $this->getMaxX(); ++$vector->x){

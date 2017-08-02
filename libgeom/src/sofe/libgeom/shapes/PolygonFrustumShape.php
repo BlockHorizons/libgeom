@@ -226,7 +226,7 @@ class PolygonFrustumShape extends LazyStreamsShape{
 	}
 
 	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putString($this->getLevelName());
 		$stream->putVector3f($this->baseAnchor->x, $this->baseAnchor->y, $this->baseAnchor->z);
 		$stream->putShort(count($this->basePolygon));
 		foreach($this->basePolygon as $point){

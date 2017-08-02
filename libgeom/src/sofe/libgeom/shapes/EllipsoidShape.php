@@ -108,7 +108,7 @@ class EllipsoidShape extends LazyStreamsShape{
 	}
 
 	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putString($this->getLevelName());
 		$stream->putVector3f($this->center->x, $this->center->y, $this->center->z);
 		$stream->putVector3f($this->xrad,$this->yrad,$this->zrad);
 	}

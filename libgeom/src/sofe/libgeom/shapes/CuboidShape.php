@@ -76,7 +76,7 @@ class CuboidShape extends Shape{
 					}
 				}
 			}
-			for($vector->x = $this->min->x- $l; $i < 6; $vector->x = $this->max->x + $l, ++$i){
+			for($vector->x = $this->min->x - $l; $i < 6; $vector->x = $this->max->x + $l, ++$i){
 				for($vector->z = $this->min->z - $l + 1; $vector->z <= $this->max->z + $l - 1; ++$vector->z){
 					for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
 						yield true;
@@ -157,6 +157,29 @@ class CuboidShape extends Shape{
 		return $chunks;
 	}
 
+	public function getMinX() : int{
+		return $this->min->x;
+	}
+
+	public function getMinY() : int{
+		return $this->min->y;
+	}
+
+	public function getMinZ() : int{
+		return $this->min->z;
+	}
+
+	public function getMaxX() : int{
+		return $this->max->x;
+	}
+
+	public function getMaxY() : int{
+		return $this->max->y;
+	}
+
+	public function getMaxZ() : int{
+		return $this->max->z;
+	}
 
 	public static function fromBinary(Server $server, LibgeomBinaryStream $stream) : Shape{
 		$from = new Vector3();
@@ -169,6 +192,6 @@ class CuboidShape extends Shape{
 	public function toBinary(LibgeomBinaryStream $stream){
 		$stream->putBlockPosition($this->from->x, $this->from->y, $this->from->z);
 		$stream->putBlockPosition($this->to->x, $this->to->y, $this->to->z);
-		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putString($this->getLevelName());
 	}
 }

@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace sofe\libgeom\shapes;
 
-use LegendsOfMCPE\WorldEditArt\Epsilon\IShape;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
@@ -254,7 +253,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevel()->getFolderName());
+		$stream->putString($this->getLevelName());
 		$stream->putVector3f($this->base->x, $this->base->y, $this->base->z);
 		$stream->putVector3f($this->baseRightCircum->x, $this->baseRightCircum->y, $this->baseRightCircum->z);
 		$stream->putFloat($this->baseFrontRadius);

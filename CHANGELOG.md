@@ -13,12 +13,15 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 - `Shape::marginalDistance()` (formerly in `LazyStreamsShape`)
 - `LibgeomBinaryStream` for saving shapes
 - `Shape::getChunksInvolved()`
+- `Shape::getMinX()` etc.
+  - Already implemented in `LazyStreamsShape`
 - shape saving through `Shape::fromBinary()` and `Shape::toBinary()`
 
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`
 - `BlockStream` is replaced by [`Generator`](https://php.net/generator) with method signature changes
 - A major namespace refactor from `sofe\libgeom\shape` to `sofe\libgeom`. Shape implementations moved to `sofe\libgeom\shapes` (note the plural "shapes").
+- `SoftLevelStorage` now only saves the level folder name, not the direct reference to the level itself
 
 ### Removed
 - Unused classes

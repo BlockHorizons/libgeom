@@ -136,4 +136,17 @@ abstract class Shape extends SoftLevelStorage{
 	}
 
 	public abstract function toBinary(LibgeomBinaryStream $stream);
+
+	public abstract function getMinX() : int;
+
+	public abstract function getMinY() : int;
+
+	public abstract function getMinZ() : int;
+
+	public abstract function getMaxX() : int;
+
+	public abstract function getMaxY() : int;
+
+	public abstract function getMaxZ() : int;
+
 }

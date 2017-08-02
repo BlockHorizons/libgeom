@@ -18,31 +18,28 @@ declare(strict_types=1);
 namespace sofe\libgeom;
 
 use pocketmine\level\Level;
-use pocketmine\utils\MainLogger;
+use pocketmine\Server;
 
 abstract class SoftLevelStorage{
-	/** @var Level|null */
-	private $level = null;
+	/** @var string|null */
+	protected $levelName = null;
 
-	public function getLevel(){
-		if($this->level !== null and $this->level->isClosed()){
-			MainLogger::getLogger()->debug(static::class . " was holding a reference to an unloaded Level");
-			$this->level = null;
+	public function getLevel(Server $server){
+		if($this->levelName === null){
+			return null;
 		}
-
-		return $this->level;
+		return $server->getLevelByName($this->levelName);
 	}
 
-	public function setLevel(Level $level = null){
+	public function getLevelName() : string{
+		return $this->levelName;
+	}
+
+	public function setLevel(Level $level){
 		if($level !== null and $level->isClosed()){
-			throw new \InvalidArgumentException("Specified level has been unloaded and cannot be used");
+			throw new \InvalidArgumentException("Cannot use unloaded level");
 		}
-
-		$this->level = $level;
+		$this->levelName = $level->getFolderName();
 		return $this;
-	}
-
-	public function isValid() : bool{
-		return $this->getLevel() instanceof Level;
 	}
 }

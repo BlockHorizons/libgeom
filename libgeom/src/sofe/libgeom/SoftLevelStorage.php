@@ -42,4 +42,8 @@ abstract class SoftLevelStorage{
 		$this->levelName = $level->getFolderName();
 		return $this;
 	}
+
+	public function isValid(Server $server) : bool{
+		return $server->getLevelByName($this->levelName) !== null;
+	}
 }

@@ -149,4 +149,5 @@ abstract class Shape extends SoftLevelStorage{
 
 	public abstract function getMaxZ() : int;
 
+	public abstract function isComplete() : bool;
 }

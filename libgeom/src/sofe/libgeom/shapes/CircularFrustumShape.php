@@ -58,10 +58,10 @@ use sofe\libgeom\Shape;
  */
 class CircularFrustumShape extends LazyStreamsShape{
 	/** @var Vector3 */
-	private $base, $top;
-	/** @var Vector3 */
-	private $baseRightCircum;
-	/** @var float */
+	private $base;
+	/** @var Vector3|null */
+	private $top;
+	/** @var float|null */
 	private $baseRightRadius, $baseFrontRadius, $topRightRadius, $topFrontRadius;
 	/** @var Vector3 */
 	private $normal, $rightDir, $frontDir;
@@ -69,33 +69,126 @@ class CircularFrustumShape extends LazyStreamsShape{
 	/**
 	 * @param Level   $level           the level that the shape is located in.
 	 * @param Vector3 $base            the position vector representing the midpoint of the base ellipse
+	 * @param Vector3 $top             the position vector representing the midpoint of the top ellipse
+	 * @param Vector3 $normal          the relative vector representing the orientation of line perpendicular to the plane of both ellipses, will be automatically normalized
 	 * @param Vector3 $baseRightCircum the position vector representing the intersection of the right radius and the circumference of the base ellipse
 	 * @param float   $baseFrontRadius the front-back radius of the base ellipse, must be positive, may be smaller than |$baseRightCircum-$base|
-	 * @param Vector3 $top             the position vector representing the midpoint of the top ellipse
 	 * @param float   $topRightRadius  the left-right radius of the top ellipse, must be non-negative
 	 * @param float   $topFrontRadius  the front-back radius of the top ellipse, may be smaller than $topRightRadius but parallel to $baseFrontRadius, must be non-negative, must be zero if and only if $topRightRadius is zero
-	 * @param Vector3 $normal          the relative vector representing the orientation of line perpendicular to the plane of both ellipses, will be automatically normalized
 	 */
-	public function __construct(Level $level, Vector3 $base, Vector3 $baseRightCircum, float $baseFrontRadius, Vector3 $top, float $topRightRadius, float $topFrontRadius, Vector3 $normal){
+	public function __construct(Level $level, Vector3 $base, Vector3 $top = null, Vector3 $normal = null, Vector3 $baseRightCircum = null, float $baseFrontRadius = null, float $topRightRadius = null, float $topFrontRadius = null){
 		$this->setLevel($level);
-		assert($normal->dot($base->subtract($baseRightCircum)) == 0, "baseRightCircum-base is not perpendicular to the normal");
+		assert(abs($normal->dot($base->subtract($baseRightCircum))) < 1e-10, "baseRightCircum-base is not perpendicular to the normal");
 		$this->base = $base;
-		$this->baseRightCircum = $baseRightCircum;
-		$baseRightRadiusLine = $baseRightCircum->subtract($this->base);
-		$this->rightDir = $baseRightRadiusLine->normalize();
-		$this->baseRightRadius = $baseRightRadiusLine->length();
-		$this->baseFrontRadius = $baseFrontRadius;
-		assert($this->baseRightRadius > 0);
-		assert($this->baseFrontRadius > 0);
 		$this->top = $top;
-		assert(($topRightRadius <=> 0) === ($topFrontRadius <=> 0) and $topRightRadius >= 0);
+		if($normal !== null){
+			$this->normal = $normal->normalize();
+			if($baseRightCircum !== null){
+				$baseRightRadiusLine = $baseRightCircum->subtract($this->base);
+				$this->rightDir = $baseRightRadiusLine->normalize();
+				$this->baseRightRadius = $baseRightRadiusLine->length();
+				assert($this->baseRightRadius > 0);
+				assert($this->baseFrontRadius > 0);
+				if($topRightRadius !== null and $topFrontRadius !== null){
+					assert(($topRightRadius <=> 0) === ($topFrontRadius <=> 0) and $topRightRadius >= 0);
+				}
+				$this->frontDir = $this->normal->cross($this->rightDir);
+			}
+		}
+		$this->baseFrontRadius = $baseFrontRadius;
 		$this->topRightRadius = $topRightRadius;
 		$this->topFrontRadius = $topFrontRadius;
+	}
+
+
+	public function getBase() : Vector3{
+		return $this->base;
+	}
+
+	public function setBase(Vector3 $base) : CircularFrustumShape{
+		$this->base = $base;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getTop(){
+		return $this->top;
+	}
+
+	public function setTop(Vector3 $top = null) : CircularFrustumShape{
+		$this->top = $top;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getNormal(){
+		return $this->normal;
+	}
+
+	public function getRightDir(){
+		return $this->rightDir;
+	}
+
+	public function getFrontDir(){
+		return $this->frontDir;
+	}
+
+	public function rotate(Vector3 $normal, Vector3 $rightDir) : CircularFrustumShape{
+		assert(abs($normal->dot($rightDir)) < 1e-10);
 		$this->normal = $normal->normalize();
+		$this->rightDir = $rightDir->normalize();
 		$this->frontDir = $this->normal->cross($this->rightDir);
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getBaseRightRadius(){
+		return $this->baseRightRadius;
+	}
+
+	public function setBaseRightRadius(float $radius) : CircularFrustumShape{
+		$this->baseRightRadius = $radius;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getBaseFrontRadius(){
+		return $this->baseFrontRadius;
+	}
+
+	public function setBaseFrontRadius(float $radius) : CircularFrustumShape{
+		$this->baseFrontRadius = $radius;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getTopRightRadius(){
+		return $this->topRightRadius;
+	}
+
+	public function setTopRightRadius(float $radius) : CircularFrustumShape{
+		$this->topRightRadius = $radius;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getTopFrontRadius(){
+		return $this->topFrontRadius;
+	}
+
+	public function setTopFrontRadius(float $radius) : CircularFrustumShape{
+		$this->topFrontRadius = $radius;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function isComplete() : bool{
+		return isset($this->top, $this->normal, $this->baseRightRadius, $this->baseFrontRadius, $this->topRightRadius, $this->topFrontRadius);
 	}
 
 	public function isInside(Vector3 $vector) : bool{
+		assert($this->isComplete());
+
 		// Put ^a = base, ^b = top, so ^a to $b is the axis of the frustum
 		// Put ^p = position to test for, ^n = unit vector perpendicular to the ellipse planes
 		// Let ^q be a point between ^a and ^b, where ^q - ^p is perpendicular to ^n
@@ -136,6 +229,8 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	public function marginalDistance(Vector3 $vector) : float{
+		assert($this->isComplete());
+
 		$n = $this->normal;
 		$b = $this->top;
 		$a = $this->base;
@@ -163,6 +258,8 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	protected function estimateSize() : int{
+		assert($this->isComplete());
+
 		// A(h) = area of layer h, where h at base = 0 and h at top = 1
 		// = pi (baseRightRadius + h (topRightRadius - baseRightRadius)) (baseFrontRadius + h (topFrontRadius - baseFrontRadius))
 		// size = (top - base) dot normal * integrate of A(h) on dh from h = 0 to h = 1
@@ -178,38 +275,43 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return (int) round($height * M_PI * $integrate);
 	}
 
-
 	protected function lazyGetMinX() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->x, $this->frontDir->multiply($this->baseFrontRadius)->x);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->x, $this->frontDir->multiply($this->topFrontRadius)->x);
 		return min($this->base->x - $base, $this->top->x - $top);
 	}
 
 	protected function lazyGetMaxX() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->x, $this->frontDir->multiply($this->baseFrontRadius)->x);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->x, $this->frontDir->multiply($this->topFrontRadius)->x);
 		return max($this->base->x + $base, $this->top->x + $top);
 	}
 
 	protected function lazyGetMinY() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->y, $this->frontDir->multiply($this->baseFrontRadius)->y);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->y, $this->frontDir->multiply($this->topFrontRadius)->y);
 		return min($this->base->y - $base, $this->top->y - $top);
 	}
 
 	protected function lazyGetMaxY() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->y, $this->frontDir->multiply($this->baseFrontRadius)->y);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->y, $this->frontDir->multiply($this->topFrontRadius)->y);
 		return max($this->base->y + $base, $this->top->y + $top);
 	}
 
 	protected function lazyGetMinZ() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->z, $this->frontDir->multiply($this->baseFrontRadius)->z);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->z, $this->frontDir->multiply($this->topFrontRadius)->z);
 		return min($this->base->z - $base, $this->top->z - $top);
 	}
 
 	protected function lazyGetMaxZ() : float{
+		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->z, $this->frontDir->multiply($this->baseFrontRadius)->z);
 		$top = $this->evalObliqueRadius($this->rightDir->multiply($this->topRightRadius)->z, $this->frontDir->multiply($this->topFrontRadius)->z);
 		return max($this->base->z + $base, $this->top->z + $top);
@@ -224,6 +326,8 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
+		assert($this->isComplete());
+
 		$height = $this->top->subtract($this->base)->dot($this->normal); // modulus(normal) == 1
 		$height += $margin * 2;
 		$a = $this->baseRightRadius + $margin;
@@ -249,13 +353,14 @@ class CircularFrustumShape extends LazyStreamsShape{
 		$topRightRadius = $stream->getFloat();
 		$topFrontRadius = $stream->getFloat();
 		$stream->getVector3f($normal->x, $normal->y, $normal->z);
-		return new CircularFrustumShape($level, $base, $baseRightCircum, $baseFrontRadius, $top, $topRightRadius, $topFrontRadius, $normal);
+		return new CircularFrustumShape($level, $base, $top, $normal, $baseRightCircum, $baseFrontRadius, $topRightRadius, $topFrontRadius);
 	}
 
 	public function toBinary(LibgeomBinaryStream $stream){
 		$stream->putString($this->getLevelName());
 		$stream->putVector3f($this->base->x, $this->base->y, $this->base->z);
-		$stream->putVector3f($this->baseRightCircum->x, $this->baseRightCircum->y, $this->baseRightCircum->z);
+		$baseRightCircum = $this->base->add($this->rightDir->multiply($this->baseRightRadius));
+		$stream->putVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
 		$stream->putFloat($this->baseFrontRadius);
 		$stream->putVector3f($this->top->x, $this->top->y, $this->top->z);
 		$stream->putFloat($this->topRightRadius);

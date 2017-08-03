@@ -22,6 +22,9 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 - `BlockStream` is replaced by [`Generator`](https://php.net/generator) with method signature changes
 - A major namespace refactor from `sofe\libgeom\shape` to `sofe\libgeom`. Shape implementations moved to `sofe\libgeom\shapes` (note the plural "shapes").
 - `SoftLevelStorage` now only saves the level folder name, not the direct reference to the level itself
+  - Added `$server` parameter to `SoftLevelStorage::isValid()`
+- Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
+- The constructor argument order of some shapes
 
 ### Removed
 - Unused classes

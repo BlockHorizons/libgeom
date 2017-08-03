@@ -168,6 +168,10 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		return (int) ceil($this->getEstimatedSize() * ($dx + $margin) * ($dy + $margin) * ($dz + $margin) / $dx / $dy / $dz);
 	}
 
+	public function isComplete() : bool{
+		return true;
+	}
+
 	/** @noinspection PhpInconsistentReturnPointsInspection
 	 * @param Vector3 $vector
 	 * @param float   $padding
@@ -205,6 +209,30 @@ class PolygonFrustumShape extends LazyStreamsShape{
 
 	public function getTopArea() : float{
 		return $this->baseAreaCache * $this->topBaseRatio ** 2;
+	}
+
+	public function getBaseAnchor() : Vector3{
+		return $this->baseAnchor;
+	}
+
+	public function getTopAnchor() : Vector3{
+		return $this->topAnchor;
+	}
+
+	public function getBasePolygon() : array{
+		return $this->basePolygon;
+	}
+
+	public function getTopPolygon() : array{
+		return $this->topPolygon;
+	}
+
+	public function getBaseNormal() : Vector3{
+		return $this->baseNormal;
+	}
+
+	public function getTopBaseRatio() : float{
+		return $this->topBaseRatio;
 	}
 
 

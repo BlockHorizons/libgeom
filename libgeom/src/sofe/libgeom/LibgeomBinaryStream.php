@@ -25,6 +25,7 @@ use pocketmine\utils\BinaryStream;
 class LibgeomBinaryStream extends BinaryStream{
 	/**
 	 * Reads an block position with unsigned Y coordinate.
+	 *
 	 * @param int &$x
 	 * @param int &$y
 	 * @param int &$z
@@ -37,6 +38,7 @@ class LibgeomBinaryStream extends BinaryStream{
 
 	/**
 	 * Writes a block position with unsigned Y coordinate.
+	 *
 	 * @param int $x
 	 * @param int $y
 	 * @param int $z
@@ -49,6 +51,7 @@ class LibgeomBinaryStream extends BinaryStream{
 
 	/**
 	 * Reads a block position with a signed Y coordinate.
+	 *
 	 * @param int &$x
 	 * @param int &$y
 	 * @param int &$z
@@ -61,6 +64,7 @@ class LibgeomBinaryStream extends BinaryStream{
 
 	/**
 	 * Writes a block position with a signed Y coordinate.
+	 *
 	 * @param int $x
 	 * @param int $y
 	 * @param int $z
@@ -73,6 +77,7 @@ class LibgeomBinaryStream extends BinaryStream{
 
 	/**
 	 * Reads a floating-point vector3 rounded to 4dp.
+	 *
 	 * @param float $x
 	 * @param float $y
 	 * @param float $z
@@ -85,6 +90,7 @@ class LibgeomBinaryStream extends BinaryStream{
 
 	/**
 	 * Writes a floating-point vector3
+	 *
 	 * @param float $x
 	 * @param float $y
 	 * @param float $z

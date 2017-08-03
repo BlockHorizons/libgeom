@@ -25,12 +25,12 @@ use sofe\libgeom\LibgeomBinaryStream;
 use sofe\libgeom\Shape;
 
 class EllipsoidShape extends LazyStreamsShape{
-	/** @var Vector3 */
+	/** @var Vector3|null */
 	private $center;
-	/** @var float */
+	/** @var float|null */
 	private $xrad, $yrad, $zrad;
 
-	public function __construct(Level $level, Vector3 $center, float $xrad, float $yrad, float $zrad){
+	public function __construct(Level $level, Vector3 $center = null, float $xrad = null, float $yrad = null, float $zrad = null){
 		$this->setLevel($level);
 		$this->center = $center;
 		if($xrad <= 0 or $yrad <= 0 or $zrad <= 0){
@@ -42,11 +42,14 @@ class EllipsoidShape extends LazyStreamsShape{
 	}
 
 	public function isInside(Vector3 $vector) : bool{
+		assert($this->isComplete());
 		$diff = $vector->subtract($this->center);
 		return ($diff->x / $this->xrad) ** 2 + ($diff->y / $this->yrad) ** 2 + ($diff->z / $this->zrad) ** 2 <= 1;
 	}
 
 	public function marginalDistance(Vector3 $vector) : float{
+		assert($this->isComplete());
+
 		// Spherical equation of ellipsoid:
 		// r^2 (cosθ sinϕ / a)² + (sinθ cosϕ / b)² + (cosθ / c)² = 1
 		// Ref: Weisstein, Eric W. "Ellipsoid." From MathWorld--A Wolfram Web Resource. http://mathworld.wolfram.com/Ellipsoid.html
@@ -64,7 +67,52 @@ class EllipsoidShape extends LazyStreamsShape{
 	}
 
 	protected function estimateSize() : int{
+		assert($this->isComplete());
 		return 4 / 3 * M_PI * $this->xrad * $this->yrad * $this->zrad;
+	}
+
+	public function getCenter(){
+		return $this->center;
+	}
+
+	public function setCenter(Vector3 $center = null) : EllipsoidShape{
+		$this->center = $center;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function getRadiusX(){
+		return $this->xrad;
+	}
+
+	public function getRadiusY(){
+		return $this->yrad;
+	}
+
+	public function getRadiusZ(){
+		return $this->zrad;
+	}
+
+	public function setRadiusX(float $xrad = null) : EllipsoidShape{
+		$this->xrad = $xrad;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function setRadiusY(float $yrad = null) : EllipsoidShape{
+		$this->yrad = $yrad;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function setRadiusZ(float $zrad = null) : EllipsoidShape{
+		$this->zrad = $zrad;
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function isComplete() : bool{
+		return isset($this->center, $this->xrad, $this->yrad, $this->zrad);
 	}
 
 	protected function lazyGetMinX() : float{
@@ -110,6 +158,6 @@ class EllipsoidShape extends LazyStreamsShape{
 	public function toBinary(LibgeomBinaryStream $stream){
 		$stream->putString($this->getLevelName());
 		$stream->putVector3f($this->center->x, $this->center->y, $this->center->z);
-		$stream->putVector3f($this->xrad,$this->yrad,$this->zrad);
+		$stream->putVector3f($this->xrad, $this->yrad, $this->zrad);
 	}
 }

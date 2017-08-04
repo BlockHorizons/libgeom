@@ -63,14 +63,15 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		if(count($basePolygon) < 3){
 			throw new \InvalidArgumentCountException("Base polygon must have at least 3 points");
 		}
-		$this->baseAnchor = $baseAnchor;
-		$this->basePolygon = $basePolygon;
-		$this->topAnchor = $topAnchor;
-		$this->topBaseRatio = $topBaseRatio;
+		$this->baseAnchor = $baseAnchor->asVector3();
+		$this->topAnchor = $topAnchor->asVector3();
+		$this->basePolygon = [];
 		$this->topPolygon = [];
 		foreach($basePolygon as $basePoint){
+			$this->basePolygon[] = $basePoint->asVector3();
 			$this->topPolygon[] = $topAnchor->add($basePoint->subtract($baseAnchor)->multiply($topBaseRatio));
 		}
+		$this->topBaseRatio = $topBaseRatio;
 		assert(LibgeomMathUtils::areCoplanar($baseAnchor, ...$basePolygon), "Base anchor and base polygon must be coplanar");
 		$this->baseNormal = $basePolygon[2]->subtract($basePolygon[1])->cross($basePolygon[0]->subtract($basePolygon[1]))->normalize();
 		$this->isSelfIntersecting = $this->_isSelfIntersecting();

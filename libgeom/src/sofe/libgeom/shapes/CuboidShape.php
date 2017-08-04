@@ -39,6 +39,8 @@ class CuboidShape extends Shape{
 
 	private function recalcMinMax(){
 		if(isset($this->from, $this->to)){
+			$this->from = $this->from->asVector3();
+			$this->to = $this->to->asVector3();
 			$this->min = new Vector3(
 				min($this->from->x, $this->to->x),
 				min($this->from->y, $this->to->y),

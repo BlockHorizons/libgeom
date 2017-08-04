@@ -79,8 +79,8 @@ class CircularFrustumShape extends LazyStreamsShape{
 	public function __construct(Level $level, Vector3 $base, Vector3 $top = null, Vector3 $normal = null, Vector3 $baseRightCircum = null, float $baseFrontRadius = null, float $topRightRadius = null, float $topFrontRadius = null){
 		$this->setLevel($level);
 		assert(abs($normal->dot($base->subtract($baseRightCircum))) < 1e-10, "baseRightCircum-base is not perpendicular to the normal");
-		$this->base = $base;
-		$this->top = $top;
+		$this->base = $base !== null ? $base->asVector3() : null;
+		$this->top = $top !== null ? $base->asVector3() : null;
 		if($normal !== null){
 			$this->normal = $normal->normalize();
 			if($baseRightCircum !== null){
@@ -106,7 +106,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	public function setBase(Vector3 $base) : CircularFrustumShape{
-		$this->base = $base;
+		$this->base = $base !== null ? $base->asVector3() : null;
 		$this->onDimenChanged();
 		return $this;
 	}
@@ -116,7 +116,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	}
 
 	public function setTop(Vector3 $top = null) : CircularFrustumShape{
-		$this->top = $top;
+		$this->top = $top !== null ? $top->asVector3() : null;
 		$this->onDimenChanged();
 		return $this;
 	}

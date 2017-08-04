@@ -25,6 +25,7 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
   - Added `$server` parameter to `SoftLevelStorage::isValid()`
 - Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
 - The constructor argument order of some shapes
+- Shape objects are now thread-safe (by specification).
 
 ### Removed
 - Unused classes

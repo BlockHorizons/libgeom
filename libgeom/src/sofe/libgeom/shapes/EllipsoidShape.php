@@ -32,7 +32,7 @@ class EllipsoidShape extends LazyStreamsShape{
 
 	public function __construct(Level $level, Vector3 $center = null, float $xrad = null, float $yrad = null, float $zrad = null){
 		$this->setLevel($level);
-		$this->center = $center;
+		$this->center = $center !== null ? $center->asVector3() : null;
 		if($xrad <= 0 or $yrad <= 0 or $zrad <= 0){
 			throw new \InvalidArgumentException("Radii of ellipsoid must be positive");
 		}
@@ -76,6 +76,9 @@ class EllipsoidShape extends LazyStreamsShape{
 	}
 
 	public function setCenter(Vector3 $center = null) : EllipsoidShape{
+		if($center !== null){
+			$center = $center->asVector3();
+		}
 		$this->center = $center;
 		$this->onDimenChanged();
 		return $this;

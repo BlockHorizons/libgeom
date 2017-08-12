@@ -63,7 +63,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	private $top;
 	/** @var float|null */
 	private $baseRightRadius, $baseFrontRadius, $topRightRadius, $topFrontRadius;
-	/** @var Vector3 */
+	/** @var Vector3|null */
 	private $normal, $rightDir, $frontDir;
 
 	/**

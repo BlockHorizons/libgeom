@@ -195,7 +195,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return $this->baseRightRadius;
 	}
 
-	public function setBaseRightRadius(float $radius) : CircularFrustumShape{
+	public function setBaseRightRadius(float $radius = null) : CircularFrustumShape{
 		$this->baseRightRadius = $radius;
 		$this->onDimenChanged();
 		return $this;
@@ -205,7 +205,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return $this->baseFrontRadius;
 	}
 
-	public function setBaseFrontRadius(float $radius) : CircularFrustumShape{
+	public function setBaseFrontRadius(float $radius = null) : CircularFrustumShape{
 		$this->baseFrontRadius = $radius;
 		$this->onDimenChanged();
 		return $this;
@@ -215,7 +215,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return $this->topRightRadius;
 	}
 
-	public function setTopRightRadius(float $radius) : CircularFrustumShape{
+	public function setTopRightRadius(float $radius = null) : CircularFrustumShape{
 		$this->topRightRadius = $radius;
 		$this->onDimenChanged();
 		return $this;
@@ -225,7 +225,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return $this->topFrontRadius;
 	}
 
-	public function setTopFrontRadius(float $radius) : CircularFrustumShape{
+	public function setTopFrontRadius(float $radius = null) : CircularFrustumShape{
 		$this->topFrontRadius = $radius;
 		$this->onDimenChanged();
 		return $this;

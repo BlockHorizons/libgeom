@@ -16,6 +16,7 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 - `Shape::getMinX()` etc.
   - Already implemented in `LazyStreamsShape`
 - shape saving through `Shape::fromBinary()` and `Shape::toBinary()`
+- Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
 
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`
@@ -23,7 +24,6 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 - A major namespace refactor from `sofe\libgeom\shape` to `sofe\libgeom`. Shape implementations moved to `sofe\libgeom\shapes` (note the plural "shapes").
 - `SoftLevelStorage` now only saves the level folder name, not the direct reference to the level itself
   - Added `$server` parameter to `SoftLevelStorage::isValid()`
-- Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
 - The constructor argument order of some shapes
 - Shape objects are now thread-safe (by specification).
 

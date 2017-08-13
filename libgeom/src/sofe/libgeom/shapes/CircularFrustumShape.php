@@ -78,7 +78,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	 */
 	public function __construct(Level $level, Vector3 $base, Vector3 $top = null, Vector3 $normal = null, Vector3 $baseRightCircum = null, float $baseFrontRadius = null, float $topRightRadius = null, float $topFrontRadius = null){
 		$this->setLevel($level);
-		assert(abs($normal->dot($base->subtract($baseRightCircum))) < 1e-10, "baseRightCircum-base is not perpendicular to the normal");
+		assert($normal === null or abs($normal->dot($base->subtract($baseRightCircum))) < 1e-10, "baseRightCircum-base is not perpendicular to the normal");
 		$this->base = $base !== null ? $base->asVector3() : null;
 		$this->top = $top !== null ? $base->asVector3() : null;
 		if($normal !== null){
@@ -131,6 +131,55 @@ class CircularFrustumShape extends LazyStreamsShape{
 
 	public function getFrontDir(){
 		return $this->frontDir;
+	}
+
+	public function unsetDirections() : CircularFrustumShape{
+		unset($this->normal, $this->rightDir, $this->frontDir);
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function setNormal(Vector3 $normal) : CircularFrustumShape{
+		if($this->frontDir !== null and $this->rightDir !== null){
+			throw new \RuntimeException("Call unsetDirections() before calling setNormal()");
+		}
+		$this->normal = $normal->normalize();
+		if(isset($this->frontDir)){
+			$this->rightDir = $this->frontDir->cross($this->normal);
+		}elseif(isset($this->rightDir)){
+			$this->frontDir = $this->normal->cross($this->rightDir);
+		}
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function setRightDir(Vector3 $rightDir) : CircularFrustumShape{
+		if($this->frontDir !== null and $this->normal !== null){
+			throw new \RuntimeException("Call unsetDirections() before calling setRightDir()");
+		}
+		$this->rightDir = $rightDir;
+		if(isset($this->normal)){
+			$this->frontDir = $this->normal->cross($this->rightDir);
+		}elseif(isset($this->frontDir)){
+			$this->normal = $this->rightDir->cross($this->frontDir);
+		}
+		$this->onDimenChanged();
+		return $this;
+	}
+
+	public function setFrontDir(Vector3 $frontDir) : CircularFrustumShape{
+		if($this->rightDir !== null and $this->normal !== null){
+			throw new \RuntimeException("Call unsetDirections() before calling setRightDir()");
+		}
+		$this->frontDir = $frontDir;
+
+		if(isset($this->rightDir)){
+			$this->normal = $this->rightDir->cross($this->frontDir);
+		}elseif(isset($this->normal)){
+			$this->rightDir = $this->frontDir->cross($this->normal);
+		}
+		$this->onDimenChanged();
+		return $this;
 	}
 
 	public function rotate(Vector3 $normal, Vector3 $rightDir) : CircularFrustumShape{
@@ -189,18 +238,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 	public function isInside(Vector3 $vector) : bool{
 		assert($this->isComplete());
 
-		// Put ^a = base, ^b = top, so ^a to $b is the axis of the frustum
-		// Put ^p = position to test for, ^n = unit vector perpendicular to the ellipse planes
-		// Let ^q be a point between ^a and ^b, where ^q - ^p is perpendicular to ^n
-		// Put ^d = ^q - ^p
-		// Let lambda be the proportion of ^q from ^a to ^b, i.e. ^q - ^a = lambda * (^b - ^a)
-		// Therefore, we have:
-		// ^n dot ^d = 0 (by definition)
-		// ^n dot (^q - ^p) = 0
-		// ^n dot ^q = ^n dot ^p
-		// ^n dot (lambda * (^b - ^a) + ^a) = ^n dot ^p
-		// lambda * ^n dot (^b - ^a) = ^n dot ^p - ^n dot ^a
-		// lambda = (^n dot ^p - ^n dot ^a) / ^n dot (^b - ^a)
+		// See draft-1
 
 		// take the planes of ellipses as horizontal, base plane as altitude = 0 and top plane as altitude = 1
 		// lambda is equivalent to the altitude of the position to test

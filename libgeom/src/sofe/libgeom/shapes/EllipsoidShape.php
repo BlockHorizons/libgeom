@@ -75,6 +75,10 @@ class EllipsoidShape extends LazyStreamsShape{
 		return $this->center;
 	}
 
+	protected function lazyGetCenter() : Vector3{
+		return $this->center;
+	}
+
 	public function setCenter(Vector3 $center = null) : EllipsoidShape{
 		if($center !== null){
 			$center = $center->asVector3();

@@ -82,6 +82,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		$this->base = $base !== null ? $base->asVector3() : null;
 		$this->top = $top !== null ? $base->asVector3() : null;
 		if($normal !== null){
+			/** @noinspection PhpUndefinedMethodInspection */
 			$this->normal = $normal->normalize();
 			if($baseRightCircum !== null){
 				$baseRightRadiusLine = $baseRightCircum->subtract($this->base);
@@ -255,7 +256,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		$q = $a->add($b->subtract($a)->multiply($lambda));
 		$d = $q->subtract($p);
 
-		assert($d->dot($n) == 0, "Position-axis difference should be parallel to the ellipses");
+		assert(((float) $d->dot($n)) === 0.0, "Position-axis difference should be parallel to the ellipses");
 
 		$rightProjection = abs($d->dot($this->rightDir)); // if negative, the point is on the left of the axis, so flip it
 		$frontProjection = abs($d->dot($this->frontDir)); // if negative the point is on the back of the axis, so flip it
@@ -282,7 +283,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		$q = $a->add($b->subtract($a)->multiply($lambda));
 		$D = $p->subtract($q);
 
-		assert($D->dot($n) == 0, "Position-axis difference should be parallel to the ellipses");
+		assert(((float) $D->dot($n)) === 0, "Position-axis difference should be parallel to the ellipses");
 
 		$rightRadius = $this->baseRightRadius + ($this->topRightRadius - $this->baseRightRadius) * $lambda;
 		$frontRadius = $this->baseFrontRadius + ($this->topFrontRadius - $this->baseFrontRadius) * $lambda;
@@ -293,6 +294,17 @@ class CircularFrustumShape extends LazyStreamsShape{
 		// FIXME The shortest distance from the wall of the frustum rather than the horizontal distance should be used. Right now, if the angle between the horizontal and the wall of the frustum deviates a lot from 90 degrees, the wall may become too thin, or even leaving gaps in between.
 
 		return abs($vertDistance) < abs($horizDistance) ? $vertDistance : $horizDistance;
+	}
+
+	protected function lazyGetCenter() : Vector3{
+		$pAxis = $this->top->subtract($this->base);
+		// Weisstein, Eric W. "Conical Frustum." From MathWorld--A Wolfram Web Resource. http://mathworld.wolfram.com/ConicalFrustum.html
+		// Formula for the height of the geometric centroid
+		$w2 = $this->topRightRadius * $this->topFrontRadius;
+		$x2 = $this->baseRightRadius * $this->baseFrontRadius;
+		$wx = sqrt($w2 * $x2);
+		$coef = ($w2 + $x2 * 3 + $wx * 2) / 4 / ($w2 + $x2 + $wx);
+		return $this->base->add($pAxis->multiply($coef));
 	}
 
 	protected function estimateSize() : int{

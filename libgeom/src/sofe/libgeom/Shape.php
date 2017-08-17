@@ -22,6 +22,7 @@ use pocketmine\Server;
 
 abstract class Shape extends SoftLevelStorage{
 	private $estimatedSize;
+	private $centerCache;
 
 	/**
 	 * Returns whether $vector is in this shape
@@ -113,6 +114,22 @@ abstract class Shape extends SoftLevelStorage{
 	public abstract function marginalDistance(Vector3 $vector) : float;
 
 	/**
+	 * Returns the center point of the shape.
+	 *
+	 *
+	 *
+	 * @return Vector3|null
+	 */
+	public function getCenter(){
+		if(!$this->isComplete()){
+			return null;
+		}
+		return $this->centerCache ?? ($this->centerCache = $this->lazyGetCenter());
+	}
+
+	protected abstract function lazyGetCenter() : Vector3;
+
+	/**
 	 * Returns an array of the Level::chunkHash()s of the chunks involved with this shape
 	 *
 	 * @return int[]
@@ -150,4 +167,8 @@ abstract class Shape extends SoftLevelStorage{
 	public abstract function getMaxZ() : int;
 
 	public abstract function isComplete() : bool;
+
+	protected function onDimenChanged(){
+		unset($this->centerCache);
+	}
 }

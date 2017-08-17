@@ -26,7 +26,7 @@ class LibgeomMathUtils{
 		}
 		$v01 = $points[0]->subtract($points[1]);
 		$u = $points[2]->subtract($points[1])->cross($v01)->normalize();
-		for($i = 2; $i <= count($points); ++$i){
+		for($i = 2, $iMax = count($points); $i <= $iMax; ++$i){
 			$cross = $points[$i - 1]->subtract($points[$i === count($points) ? 0 : $i])->cross($v01)->normalize();
 			if(!LibgeomMathUtils::areVectorsAlmostParallel($cross, $u)){
 				return false;
@@ -35,7 +35,7 @@ class LibgeomMathUtils{
 		return true;
 	}
 
-	public static function areVectorsAlmostParallel(Vector3 $v1, Vector3 $v2){
+	public static function areVectorsAlmostParallel(Vector3 $v1, Vector3 $v2) : bool{
 		$rx = $v1->x / $v2->x;
 		$ry = $v1->y / $v2->y;
 		$rz = $v1->z / $v2->z;
@@ -113,14 +113,15 @@ class LibgeomMathUtils{
 	 * @param int        $recursion
 	 */
 	protected static function solveAVBW(Vector3 $a, Vector3 $v, Vector3 $b, Vector3 $w, float &$t = null, float &$u = null, int $recursion = 0){
-		$base = $v->x * $w->y - $v->y * $w->x;
-		if($base == 0){
+		$base = (float) ($v->x * $w->y - $v->y * $w->x);
+		if($base === 0){
 			if($recursion === 2){
 				throw new \InvalidArgumentException("Arguments are not coplanar");
 			}
-			self::solveAVBW(LibgeomMathUtils::shiftVector($a), LibgeomMathUtils::shiftVector($v), LibgeomMathUtils::shiftVector($b), LibgeomMathUtils::shiftVector($w), $t, $u, $recursion + 1);
+			LibgeomMathUtils::solveAVBW(LibgeomMathUtils::shiftVector($a), LibgeomMathUtils::shiftVector($v), LibgeomMathUtils::shiftVector($b), LibgeomMathUtils::shiftVector($w), $t, $u, $recursion + 1);
 		}
 		$u = (($a->y - $b->y) * $v->x - ($a->x - $b->x) * $v->y) / $base;
+		/** @noinspection CallableParameterUseCaseInTypeContextInspection */
 		$t = ($b->x - $a->x + $u * $w->x) / $v->x;
 	}
 

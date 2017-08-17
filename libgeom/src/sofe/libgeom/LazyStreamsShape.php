@@ -26,6 +26,7 @@ abstract class LazyStreamsShape extends Shape{
 	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
 
 	protected function onDimenChanged(){
+		parent::onDimenChanged();
 		unset($this->minX, $this->minY, $this->minZ, $this->maxX, $this->maxY, $this->maxZ);
 	}
 

@@ -80,11 +80,12 @@ class PolygonFrustumShape extends LazyStreamsShape{
 
 	private function _isSelfIntersecting() : bool{
 		$lines = [];
-		for($i = 1; $i <= count($this->basePolygon); ++$i){
+		for($i = 1, $iMax = count($this->basePolygon); $i <= $iMax; ++$i){
 			$lines[] = [$this->basePolygon[$i - 1], $this->basePolygon[$i === count($this->basePolygon) ? 0 : $i]];
 		}
-		for($i = 0; $i < count($lines); ++$i){
-			for($j = $i + 1; $j < count($lines); ++$j){
+		$linesCount = count($lines);
+		for($i = 0; $i < $linesCount; ++$i){
+			for($j = $i + 1; $j < $linesCount; ++$j){
 				if(LibgeomMathUtils::doSegmentsIntersect($lines[$i][0], $lines[$i][1], $lines[$j][0], $lines[$j][1])){
 					return true;
 				}
@@ -101,12 +102,12 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		$lambda = $this->baseNormal->dot($point->subtract($this->baseAnchor)) / $this->baseNormal->dot($this->topAnchor->subtract($this->baseAnchor));
 //		$q = $this->baseAnchor->add($this->topAnchor->subtract($this->baseAnchor)->multiply($lambda));
 		$polygon = [];
-		for($i = 0; $i < count($this->basePolygon); ++$i){
-			$polygon[] = $this->basePolygon[$i]->add($this->topPolygon[$i]->subtract($this->basePolygon[$i])->multiply($lambda));
+		foreach($this->basePolygon as $i => $basePoint){
+			$polygon[] = $basePoint->add($this->topPolygon[$i]->subtract($basePoint)->multiply($lambda));
 		}
 		$intersects = 0;
 		$horiz = new Vector3(1, 0, 0);
-		for($i = 1; $i <= count($polygon); ++$i){
+		for($i = 1, $iMax = count($polygon); $i <= $iMax; ++$i){
 			if(LibgeomMathUtils::doesRayIntersectSegment($point, $horiz, $polygon[$i - 1], $polygon[$i === count($polygon) ? 0 : $i])){
 				$intersects ^= 1;
 			}
@@ -119,10 +120,28 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		$lambda = $this->baseNormal->dot($vector->subtract($this->baseAnchor)) / $this->baseNormal->dot($this->topAnchor->subtract($this->baseAnchor));
 //		$q = $this->baseAnchor->add($this->topAnchor->subtract($this->baseAnchor)->multiply($lambda));
 		$polygon = [];
-		for($i = 0; $i < count($this->basePolygon); ++$i){
+		for($i = 0, $iMax = count($this->basePolygon); $i < $iMax; ++$i){
 			$polygon[] = $this->basePolygon[$i]->add($this->topPolygon[$i]->subtract($this->basePolygon[$i])->multiply($lambda));
 		}
 		// TODO implement
+	}
+
+	protected function lazyGetCenter() : Vector3{
+		/** @var Vector3 $baseCenter */
+		$baseCenter = array_reduce($this->basePolygon, function(Vector3 $carry, Vector3 $item){
+			$carry->x += $item->x;
+			$carry->y += $item->y;
+			$carry->z += $item->z;
+			return $carry;
+		}, new Vector3);
+		$topCenter = $this->topAnchor->add($baseCenter->subtract($this->baseAnchor)->multiply($this->topBaseRatio));
+		// Weisstein, Eric W. "Conical Frustum." From MathWorld--A Wolfram Web Resource. http://mathworld.wolfram.com/ConicalFrustum.html
+		// Formula for the height of the geometric centroid
+		$w2 = $this->topBaseRatio ** 2;
+		$x2 = 1;
+		$wx = $this->topBaseRatio;
+		$coef = ($w2 + $x2 * 3 + $wx * 2) / 4 / ($w2 + $x2 + $wx);
+		return $baseCenter->add($topCenter->subtract($baseCenter)->multiply($coef));
 	}
 
 	protected function lazyGetMinX() : float{
@@ -199,7 +218,7 @@ class PolygonFrustumShape extends LazyStreamsShape{
 				// TODO Implement
 			}else{
 				$sum = 0.0;
-				for($i = 2; $i < count($this->basePolygon); ++$i){
+				for($i = 2, $iMax = count($this->basePolygon); $i < $iMax; ++$i){
 					$sum += LibgeomMathUtils::getTriangleArea($this->basePolygon[0], $this->basePolygon[$i - 1], $this->basePolygon[$i]);
 				}
 				return $sum;

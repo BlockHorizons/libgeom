@@ -111,7 +111,7 @@ class LibgeomBinaryStream extends BinaryStream{
 	public function get($len) : string{
 		$ret = parent::get($len);
 		if($ret === false || strlen($ret) < $len){
-			throw new \UnderflowException();
+			throw new \UnderflowException("Reached EOF");
 		}
 		return $ret;
 	}

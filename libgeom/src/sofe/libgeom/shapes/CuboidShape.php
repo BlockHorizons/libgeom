@@ -33,11 +33,12 @@ class CuboidShape extends Shape{
 	public function __construct(Level $level, Vector3 $from = null, Vector3 $to = null){
 		$this->from = $from;
 		$this->to = $to;
-		$this->recalcMinMax();
+		$this->onDimenChanged();
 		$this->setLevel($level);
 	}
 
-	private function recalcMinMax(){
+	protected function onDimenChanged(){
+		parent::onDimenChanged();
 		if(isset($this->from, $this->to)){
 			$this->from = $this->from->asVector3();
 			$this->to = $this->to->asVector3();
@@ -73,13 +74,13 @@ class CuboidShape extends Shape{
 
 	public function setFrom(Vector3 $from = null) : CuboidShape{
 		$this->from = $from;
-		$this->recalcMinMax();
+		$this->onDimenChanged();
 		return $this;
 	}
 
 	public function setTo(Vector3 $to = null) : CuboidShape{
 		$this->to = $to;
-		$this->recalcMinMax();
+		$this->onDimenChanged();
 		return $this;
 	}
 
@@ -120,6 +121,10 @@ class CuboidShape extends Shape{
 		$m->y = min($this->max->y, max($this->min->y, $vector->y));
 		$m->z = min($this->max->z, max($this->min->z, $vector->z));
 		return $vector->distance($m);
+	}
+
+	protected function lazyGetCenter() : Vector3{
+		return $this->min->add($this->max)->divide(2);
 	}
 
 	public function getChunksInvolved() : array{

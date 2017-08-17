@@ -17,6 +17,7 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
   - Already implemented in `LazyStreamsShape`
 - shape saving through `Shape::fromBinary()` and `Shape::toBinary()`
 - Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
+- Added `Shape::getCenter()`
 
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`

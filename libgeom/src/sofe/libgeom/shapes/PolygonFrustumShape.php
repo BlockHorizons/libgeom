@@ -20,8 +20,9 @@ namespace sofe\libgeom\shapes;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
+use sofe\libgeom\io\LibgeomDataReader;
+use sofe\libgeom\io\LibgeomDataWriter;
 use sofe\libgeom\LazyStreamsShape;
-use sofe\libgeom\LibgeomBinaryStream;
 use sofe\libgeom\LibgeomMathUtils;
 use sofe\libgeom\Shape;
 use sofe\libgeom\UnsupportedOperationException;
@@ -257,30 +258,30 @@ class PolygonFrustumShape extends LazyStreamsShape{
 
 
 	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
-		Server $server, LibgeomBinaryStream $stream) : Shape{
-		$level = $server->getLevelByName($stream->getString());
+		Server $server, LibgeomDataReader $stream) : Shape{
+		$level = $server->getLevelByName($stream->readString());
 		$baseAnchor = new Vector3();
-		$stream->getVector3f($baseAnchor->x, $baseAnchor->y, $baseAnchor->z);
-		$size = $stream->getShort();
+		$stream->readVector3f($baseAnchor->x, $baseAnchor->y, $baseAnchor->z);
+		$size = $stream->readShort();
 		$basePolygon = [];
 		for($i = 0; $i < $size; ++$i){
 			$basePolygon[] = $v = new Vector3();
-			$stream->getVector3f($v->x, $v->y, $v->z);
+			$stream->readVector3f($v->x, $v->y, $v->z);
 		}
 		$topAnchor = new Vector3();
-		$stream->getVector3f($topAnchor->x, $topAnchor->y, $topAnchor->z);
-		$topBaseRatio = $stream->getFloat();
+		$stream->readVector3f($topAnchor->x, $topAnchor->y, $topAnchor->z);
+		$topBaseRatio = $stream->readFloat();
 		return new PolygonFrustumShape($level, $baseAnchor, $basePolygon, $topAnchor, $topBaseRatio);
 	}
 
-	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevelName());
-		$stream->putVector3f($this->baseAnchor->x, $this->baseAnchor->y, $this->baseAnchor->z);
-		$stream->putShort(count($this->basePolygon));
+	public function toBinary(LibgeomDataWriter $stream){
+		$stream->writeString($this->getLevelName());
+		$stream->writeVector3f($this->baseAnchor->x, $this->baseAnchor->y, $this->baseAnchor->z);
+		$stream->writeShort(count($this->basePolygon));
 		foreach($this->basePolygon as $point){
-			$stream->putVector3f($point->x, $point->y, $point->z);
+			$stream->writeVector3f($point->x, $point->y, $point->z);
 		}
-		$stream->putVector3f($this->topAnchor->x, $this->topAnchor->y, $this->topAnchor->z);
-		$stream->putFloat($this->topBaseRatio);
+		$stream->writeVector3f($this->topAnchor->x, $this->topAnchor->y, $this->topAnchor->z);
+		$stream->writeFloat($this->topBaseRatio);
 	}
 }

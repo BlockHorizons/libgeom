@@ -20,7 +20,8 @@ namespace sofe\libgeom\shapes;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
-use sofe\libgeom\LibgeomBinaryStream;
+use sofe\libgeom\io\LibgeomDataReader;
+use sofe\libgeom\io\LibgeomDataWriter;
 use sofe\libgeom\Shape;
 
 class CuboidShape extends Shape{
@@ -199,17 +200,17 @@ class CuboidShape extends Shape{
 		}
 	}
 
-	public static function fromBinary(Server $server, LibgeomBinaryStream $stream) : Shape{
+	public static function fromBinary(Server $server, LibgeomDataReader $stream) : Shape{
 		$from = new Vector3();
 		$to = new Vector3();
-		$stream->getBlockPosition($from->x, $from->y, $from->z);
-		$stream->getBlockPosition($to->x, $to->y, $to->z);
-		return new CuboidShape($server->getLevelByName($stream->getString()), $from, $to);
+		$stream->readBlockPosition($from->x, $from->y, $from->z);
+		$stream->readBlockPosition($to->x, $to->y, $to->z);
+		return new CuboidShape($server->getLevelByName($stream->readString()), $from, $to);
 	}
 
-	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putBlockPosition($this->from->x, $this->from->y, $this->from->z);
-		$stream->putBlockPosition($this->to->x, $this->to->y, $this->to->z);
-		$stream->putString($this->getLevelName());
+	public function toBinary(LibgeomDataWriter $stream){
+		$stream->writeBlockPosition($this->from->x, $this->from->y, $this->from->z);
+		$stream->writeBlockPosition($this->to->x, $this->to->y, $this->to->z);
+		$stream->writeString($this->getLevelName());
 	}
 }

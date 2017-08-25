@@ -20,8 +20,9 @@ namespace sofe\libgeom\shapes;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
+use sofe\libgeom\io\LibgeomDataReader;
+use sofe\libgeom\io\LibgeomDataWriter;
 use sofe\libgeom\LazyStreamsShape;
-use sofe\libgeom\LibgeomBinaryStream;
 use sofe\libgeom\Shape;
 
 class EllipsoidShape extends LazyStreamsShape{
@@ -154,17 +155,17 @@ class EllipsoidShape extends LazyStreamsShape{
 
 
 	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
-		Server $server, LibgeomBinaryStream $stream) : Shape{
-		$level = $server->getLevelByName($stream->getString());
+		Server $server, LibgeomDataReader $stream) : Shape{
+		$level = $server->getLevelByName($stream->readString());
 		$center = new Vector3();
-		$stream->getBlockPosition($center->x, $center->y, $center->z);
-		$stream->getVector3f($xrad, $yrad, $zrad);
+		$stream->readBlockPosition($center->x, $center->y, $center->z);
+		$stream->readVector3f($xrad, $yrad, $zrad);
 		return new EllipsoidShape($level, $center, $xrad, $yrad, $zrad);
 	}
 
-	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevelName());
-		$stream->putVector3f($this->center->x, $this->center->y, $this->center->z);
-		$stream->putVector3f($this->xrad, $this->yrad, $this->zrad);
+	public function toBinary(LibgeomDataWriter $stream){
+		$stream->writeString($this->getLevelName());
+		$stream->writeVector3f($this->center->x, $this->center->y, $this->center->z);
+		$stream->writeVector3f($this->xrad, $this->yrad, $this->zrad);
 	}
 }

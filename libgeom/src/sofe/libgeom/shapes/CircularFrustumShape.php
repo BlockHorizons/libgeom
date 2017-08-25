@@ -20,8 +20,9 @@ namespace sofe\libgeom\shapes;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
+use sofe\libgeom\io\LibgeomDataReader;
+use sofe\libgeom\io\LibgeomDataWriter;
 use sofe\libgeom\LazyStreamsShape;
-use sofe\libgeom\LibgeomBinaryStream;
 use sofe\libgeom\Shape;
 
 /**
@@ -390,31 +391,31 @@ class CircularFrustumShape extends LazyStreamsShape{
 
 
 	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
-		Server $server, LibgeomBinaryStream $stream) : Shape{
-		$level = $server->getLevelByName($stream->getString());
+		Server $server, LibgeomDataReader $stream) : Shape{
+		$level = $server->getLevelByName($stream->readString());
 		$base = new Vector3();
 		$baseRightCircum = new Vector3();
 		$top = new Vector3();
 		$normal = new Vector3();
-		$stream->getVector3f($base->x, $base->y, $base->z);
-		$stream->getVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
-		$baseFrontRadius = $stream->getFloat();
-		$stream->getVector3f($top->x, $top->y, $top->z);
-		$topRightRadius = $stream->getFloat();
-		$topFrontRadius = $stream->getFloat();
-		$stream->getVector3f($normal->x, $normal->y, $normal->z);
+		$stream->readVector3f($base->x, $base->y, $base->z);
+		$stream->readVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
+		$baseFrontRadius = $stream->readFloat();
+		$stream->readVector3f($top->x, $top->y, $top->z);
+		$topRightRadius = $stream->readFloat();
+		$topFrontRadius = $stream->readFloat();
+		$stream->readVector3f($normal->x, $normal->y, $normal->z);
 		return new CircularFrustumShape($level, $base, $top, $normal, $baseRightCircum, $baseFrontRadius, $topRightRadius, $topFrontRadius);
 	}
 
-	public function toBinary(LibgeomBinaryStream $stream){
-		$stream->putString($this->getLevelName());
-		$stream->putVector3f($this->base->x, $this->base->y, $this->base->z);
+	public function toBinary(LibgeomDataWriter $stream){
+		$stream->writeString($this->getLevelName());
+		$stream->writeVector3f($this->base->x, $this->base->y, $this->base->z);
 		$baseRightCircum = $this->base->add($this->rightDir->multiply($this->baseRightRadius));
-		$stream->putVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
-		$stream->putFloat($this->baseFrontRadius);
-		$stream->putVector3f($this->top->x, $this->top->y, $this->top->z);
-		$stream->putFloat($this->topRightRadius);
-		$stream->putFloat($this->topFrontRadius);
-		$stream->putVector3f($this->normal->x, $this->normal->y, $this->normal->z);
+		$stream->writeVector3f($baseRightCircum->x, $baseRightCircum->y, $baseRightCircum->z);
+		$stream->writeFloat($this->baseFrontRadius);
+		$stream->writeVector3f($this->top->x, $this->top->y, $this->top->z);
+		$stream->writeFloat($this->topRightRadius);
+		$stream->writeFloat($this->topFrontRadius);
+		$stream->writeVector3f($this->normal->x, $this->normal->y, $this->normal->z);
 	}
 }

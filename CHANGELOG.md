@@ -11,7 +11,8 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 ## [Unreleased] (2.0.0)
 ### Added
 - `Shape::marginalDistance()` (formerly in `LazyStreamsShape`)
-- `LibgeomBinaryStream` for saving shapes
+- `Libgeom(Big|Little)EndianData(Writer|Reader)` for saving/loading shapes
+  - Uses toomuchbuffer as library
 - `Shape::getChunksInvolved()`
 - `Shape::getMinX()` etc.
   - Already implemented in `LazyStreamsShape`

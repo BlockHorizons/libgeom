@@ -19,6 +19,9 @@ namespace sofe\libgeom;
 
 use pocketmine\math\Vector3;
 use pocketmine\Server;
+use sofe\libgeom\io\LibgeomDataReader;
+use sofe\libgeom\io\LibgeomDataWriter;
+use sofe\toomuchbuffer\DataReader;
 
 abstract class Shape extends SoftLevelStorage{
 	private $estimatedSize;
@@ -152,17 +155,17 @@ abstract class Shape extends SoftLevelStorage{
 	 * This method must be overridden in all non-abstract subclasses.
 	 *
 	 * @param Server              $server
-	 * @param LibgeomBinaryStream $stream
+	 * @param LibgeomDataReader $stream
 	 *
 	 * @return Shape
 	 * @throws \Exception
 	 */
 	public static function fromBinary(/** @noinspection PhpUnusedParameterInspection */
-		Server $server, LibgeomBinaryStream $stream) : Shape{
+		Server $server, LibgeomDataReader $stream) : Shape{
 		throw new \Exception("Unimplemented method " . static::class . "::fromBinary(\$binary)");
 	}
 
-	public abstract function toBinary(LibgeomBinaryStream $stream);
+	public abstract function toBinary(LibgeomDataWriter $stream);
 
 	public abstract function getMinX() : int;
 

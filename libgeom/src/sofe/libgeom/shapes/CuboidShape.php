@@ -172,7 +172,7 @@ class CuboidShape extends Shape{
 		}
 	}
 
-	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
+	public function getHollowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
 		for($l = 1 - (int) round($padding); $l <= (int) round($margin); ++$l){
 			$i = 0;
 			for($vector->y = $this->min->y - $l; $i < 2; $vector->y = $this->max->y + $l, ++$i){

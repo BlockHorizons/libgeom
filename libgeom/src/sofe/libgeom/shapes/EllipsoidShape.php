@@ -146,7 +146,7 @@ class EllipsoidShape extends LazyStreamsShape{
 		return $this->center->z + $this->zrad;
 	}
 
-	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
+	protected function lazyGetMaxHollowSize(float $padding, float $margin) : int{
 		return (int) ceil(1.3 * 4 / 3 * M_PI * (
 				($this->xrad + $margin) * ($this->yrad + $margin) * ($this->zrad + $margin) -
 				($this->xrad - $padding) * ($this->yrad - $padding) * ($this->zrad - $padding)));

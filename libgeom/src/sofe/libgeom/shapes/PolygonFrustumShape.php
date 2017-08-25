@@ -180,7 +180,7 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		}, $this->basePolygon, $this->topPolygon));
 	}
 
-	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
+	protected function lazyGetMaxHollowSize(float $padding, float $margin) : int{
 		$dx = $this->getMaxX() - $this->getMinX();
 		$dy = $this->getMaxY() - $this->getMinY();
 		$dz = $this->getMaxZ() - $this->getMinZ();
@@ -201,11 +201,11 @@ class PolygonFrustumShape extends LazyStreamsShape{
 	 *
 	 * @throws UnsupportedOperationException
 	 */
-	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
+	public function getHollowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
 		if($this->isSelfIntersecting){
-			throw new UnsupportedOperationException("Shallow self-intersecting frustums are not supported");
+			throw new UnsupportedOperationException("Hollow self-intersecting frustums are not supported");
 		}
-		return parent::getShallowStream($vector, $padding, $margin);
+		return parent::getHollowStream($vector, $padding, $margin);
 	}
 
 	protected function estimateSize() : int{

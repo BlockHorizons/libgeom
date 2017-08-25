@@ -21,7 +21,7 @@ use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 
 abstract class LazyStreamsShape extends Shape{
-	private $maxShallowSize = [];
+	private $maxHollowSize = [];
 
 	private $minX, $minY, $minZ, $maxX, $maxY, $maxZ;
 
@@ -97,7 +97,7 @@ abstract class LazyStreamsShape extends Shape{
 		}
 	}
 
-	public function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
+	public function getHollowStream(Vector3 $vector, float $padding, float $margin) : \Generator{
 		for($vector->x = $this->getMinX(); $vector->x <= $this->getMaxX(); ++$vector->x){
 			for($vector->y = $this->getMinY(); $vector->y <= $this->getMaxY(); ++$vector->y){
 				for($vector->z = $this->getMinZ(); $vector->z <= $this->getMaxZ(); ++$vector->z){
@@ -112,14 +112,14 @@ abstract class LazyStreamsShape extends Shape{
 		}
 	}
 
-	public function getMaxShallowSize(float $padding, float $margin) : int{
-		if(!isset($this->maxShallowSize[$padding . ":" . $margin])){
-			$this->maxShallowSize[$padding . ":" . $margin] = $this->lazyGetMaxShallowSize($padding, $margin);
+	public function getMaxHollowSize(float $padding, float $margin) : int{
+		if(!isset($this->maxHollowSize[$padding . ":" . $margin])){
+			$this->maxHollowSize[$padding . ":" . $margin] = $this->lazyGetMaxHollowSize($padding, $margin);
 		}
-		return $this->maxShallowSize[$padding . ":" . $margin];
+		return $this->maxHollowSize[$padding . ":" . $margin];
 	}
 
-	protected abstract function lazyGetMaxShallowSize(float $padding, float $margin) : int;
+	protected abstract function lazyGetMaxHollowSize(float $padding, float $margin) : int;
 
 	public function getChunksInvolved() : array{
 		$chunks = [];

@@ -375,7 +375,7 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return sqrt($a * $a + $b * $b);
 	}
 
-	protected function lazyGetMaxShallowSize(float $padding, float $margin) : int{
+	protected function lazyGetMaxHollowSize(float $padding, float $margin) : int{
 		assert($this->isComplete());
 
 		$height = $this->top->subtract($this->base)->dot($this->normal); // modulus(normal) == 1

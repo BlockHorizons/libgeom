@@ -18,6 +18,7 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
 - shape saving through `Shape::fromBinary()` and `Shape::toBinary()`
 - Shapes can now be constructed into an incomplete state, as detected by `isComplete()`
 - Added `Shape::getCenter()`
+- Added `Shape::getEstimatedSurfaceSize()`
 
 ### Changed
 - virion.yml limits the accepted API versions to `3.0.0-ALPHA6` and `3.0.0-ALPHA7`
@@ -27,6 +28,7 @@ Note that changes backward-incompatibile for subclasses extending `Shape` will
   - Added `$server` parameter to `SoftLevelStorage::isValid()`
 - The constructor argument order of some shapes
 - Shape objects are now thread-safe (by specification).
+- `getShallowStream()` was a typo, changed to `getHollowStream()`.
 
 ### Removed
 - Unused classes

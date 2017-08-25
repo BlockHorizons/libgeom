@@ -45,6 +45,16 @@ abstract class Shape extends SoftLevelStorage{
 	protected abstract function estimateSize() : int;
 
 	/**
+	 * Returns the estimated number of blocks from a hollow stream
+	 *
+	 * @param float $padding
+	 * @param float $margin
+	 *
+	 * @return int
+	 */
+	public abstract function getEstimatedSurfaceSize(float $padding, float $margin) : int;
+
+	/**
 	 * Returns a generator that yields all integer coordinates inside this shape.
 	 *
 	 * Pass a Vector3 (or its subclasses) object into this method. The properties of this Vector3 will be updated during
@@ -99,7 +109,7 @@ abstract class Shape extends SoftLevelStorage{
 	 *
 	 * @return \Generator a generator that yields a boolean every time
 	 */
-	public abstract function getShallowStream(Vector3 $vector, float $padding, float $margin) : \Generator;
+	public abstract function getHollowStream(Vector3 $vector, float $padding, float $margin) : \Generator;
 
 	/**
 	 * Returns the vector's distance from the nearest point on the surface of the shape.

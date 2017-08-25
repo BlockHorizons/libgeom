@@ -72,6 +72,11 @@ class EllipsoidShape extends LazyStreamsShape{
 		return 4 / 3 * M_PI * $this->xrad * $this->yrad * $this->zrad;
 	}
 
+	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{
+		return (int) round(M_PI * 4 / 3 * (($this->xrad + $margin) * ($this->yrad + $margin) * ($this->zrad + $margin)
+				- ($this->xrad - $padding) * ($this->yrad - $padding) * ($this->zrad - $padding)));
+	}
+
 	public function getCenter(){
 		return $this->center;
 	}

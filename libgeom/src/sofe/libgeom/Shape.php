@@ -41,7 +41,7 @@ abstract class Shape extends SoftLevelStorage{
 	 *
 	 * @return int
 	 */
-	public function getEstimatedSize() : int{
+	public final function getEstimatedSize() : int{
 		return $this->estimatedSize ?? ($this->estimatedSize = $this->estimateSize());
 	}
 
@@ -182,6 +182,6 @@ abstract class Shape extends SoftLevelStorage{
 	public abstract function isComplete() : bool;
 
 	protected function onDimenChanged(){
-		unset($this->centerCache);
+		unset($this->estimatedSize, $this->centerCache);
 	}
 }

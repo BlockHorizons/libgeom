@@ -46,7 +46,7 @@ class PolygonFrustumShape extends LazyStreamsShape{
 	private $basePolygon, $topPolygon;
 	/** @var Vector3 (relative) */
 	private $baseNormal;
-	/** @var float */
+	/** @var float topLength/baseLength */
 	private $topBaseRatio;
 
 	private $baseAreaCache;
@@ -120,11 +120,23 @@ class PolygonFrustumShape extends LazyStreamsShape{
 		assert(!$this->isSelfIntersecting());
 		$lambda = $this->baseNormal->dot($vector->subtract($this->baseAnchor)) / $this->baseNormal->dot($this->topAnchor->subtract($this->baseAnchor));
 //		$q = $this->baseAnchor->add($this->topAnchor->subtract($this->baseAnchor)->multiply($lambda));
+		/** @var Vector3[] $polygon */
 		$polygon = [];
-		for($i = 0, $iMax = count($this->basePolygon); $i < $iMax; ++$i){
-			$polygon[] = $this->basePolygon[$i]->add($this->topPolygon[$i]->subtract($this->basePolygon[$i])->multiply($lambda));
+		foreach($this->basePolygon as $i => $basePoint){
+			$polygon[] = $basePoint->add($this->topPolygon[$i]->subtract($basePoint)->multiply($lambda));
 		}
-		// TODO implement
+		$signum = $this->isInside($vector) ? 1 : -1;
+		$minDistance = PHP_INT_MAX;
+		foreach($polygon as $i => $point1){
+			$point2 = $polygon[$i + 1] ?? $polygon[0];
+			$ap = $vector->subtract($point1);
+			$ab = $point2->subtract($point1);
+			$distance = $ab->multiply($ap->dot($ab) / $ab->lengthSquared())->subtract($ap)->length();
+			if($minDistance > $distance){
+				$minDistance = $distance;
+			}
+		}
+		return $minDistance * $signum;
 	}
 
 	protected function lazyGetCenter() : Vector3{
@@ -210,7 +222,17 @@ class PolygonFrustumShape extends LazyStreamsShape{
 	}
 
 	protected function estimateSize() : int{
-		return (int) ceil(LibgeomMathUtils::evalFrustumVolume($this->getBaseArea(), $this->getTopArea(), $this->topAnchor->subtract($this->baseAnchor)->dot($this->baseNormal)));
+		return (int) ceil(LibgeomMathUtils::evalFrustumVolume($this->getBaseArea(), $this->getTopArea(),
+			$this->topAnchor->subtract($this->baseAnchor)->dot($this->baseNormal)));
+	}
+
+	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{
+		return (int) round(
+			LibgeomMathUtils::evalFrustumVolume($this->getBaseArea() + $margin ** 2, $this->getTopArea() + $margin ** 2,
+				$this->topAnchor->subtract($this->baseAnchor)->dot($this->baseNormal) + $margin * 2)
+			- LibgeomMathUtils::evalFrustumVolume($this->getBaseArea() - $padding ** 2, $this->getTopArea() -$padding ** 2,
+				$this->topAnchor->subtract($this->baseAnchor)->dot($this->baseNormal) - $padding * 2)
+		); // TODO improve implementation
 	}
 
 	public function getBaseArea() : float{

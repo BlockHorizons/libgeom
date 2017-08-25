@@ -326,6 +326,22 @@ class CircularFrustumShape extends LazyStreamsShape{
 		return (int) round($height * M_PI * $integrate);
 	}
 
+	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{
+		$size = 0;
+		$height = $this->top->distance($this->base);
+		for($i = -$padding; $i < $margin; ++$i){
+			$baseRadiusGeomMean = sqrt(($this->baseRightRadius - 1 + $i) * ($this->baseFrontRadius - 1 + $i));
+			$topRadiusGeomMean = sqrt(($this->topRightRadius - 1 + $i) * ($this->topFrontRadius - 1 + $i));
+			// Could I avoid the use of sqrt()?
+			$size += M_PI * $topRadiusGeomMean * $topRadiusGeomMean;
+			$size += M_PI * $baseRadiusGeomMean * $baseRadiusGeomMean;
+			// Algorithm for slant area of frustum
+			// By Weisstein, Eric W. "Conical Frustum." From MathWorld--A Wolfram Web Resource. Equation (3).
+			$size += M_PI * ($topRadiusGeomMean + $baseRadiusGeomMean) * sqrt(($topRadiusGeomMean - $baseRadiusGeomMean) ** 2 + ($height + $i) ** 2);
+		}
+		return (int) round($size);
+	}
+
 	protected function lazyGetMinX() : float{
 		assert($this->isComplete());
 		$base = $this->evalObliqueRadius($this->rightDir->multiply($this->baseRightRadius)->x, $this->frontDir->multiply($this->baseFrontRadius)->x);

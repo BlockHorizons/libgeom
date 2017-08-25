@@ -103,6 +103,15 @@ class CuboidShape extends Shape{
 		return ($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1);
 	}
 
+	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{
+		$width = $this->to->x - $this->from->x;
+		$height = $this->to->y - $this->from->y;
+		$depth = $this->to->z - $this->from->z;
+
+		return (int) (($width + $margin * 2) * ($height + $margin * 2) * ($depth + $margin * 2)
+			- ($width - $padding * 2) * ($height - $padding * 2) * ($depth - $padding * 2));
+	}
+
 	public function marginalDistance(Vector3 $vector) : float{
 		assert($this->isComplete());
 		$diffs = [

@@ -18,8 +18,18 @@ declare(strict_types=1);
 namespace sofe\libgeom\io;
 
 use sofe\toomuchbuffer\BigEndianDataReader;
+use sofe\toomuchbuffer\StreamInputStream;
+use sofe\toomuchbuffer\StringInputStream;
 
 class LibgeomBigEndianDataReader extends BigEndianDataReader implements LibgeomDataReader{
+	public static function fromFile(string $file) : LibgeomBigEndianDataReader{
+		return new LibgeomBigEndianDataReader(new StreamInputStream(fopen($file, "rb")));
+	}
+
+	public static function fromBuffer(string $buffer) : LibgeomBigEndianDataReader{
+		return new LibgeomBigEndianDataReader(new StringInputStream($buffer));
+	}
+
 	public function readString() : string{
 		return $this->stream->read($this->readVarInt(false));
 	}
@@ -37,7 +47,7 @@ class LibgeomBigEndianDataReader extends BigEndianDataReader implements LibgeomD
 	 */
 	public function readVector3f(&$x, &$y, &$z){
 		$x = round($this->readFloat(), 4);
-		$y = round($this->readFloat(),4);
-		$z = round($this->readFloat(),4);
+		$y = round($this->readFloat(), 4);
+		$z = round($this->readFloat(), 4);
 	}
 }

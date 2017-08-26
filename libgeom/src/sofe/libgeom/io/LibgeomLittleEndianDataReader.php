@@ -18,8 +18,18 @@ declare(strict_types=1);
 namespace sofe\libgeom\io;
 
 use sofe\toomuchbuffer\LittleEndianDataReader;
+use sofe\toomuchbuffer\StreamInputStream;
+use sofe\toomuchbuffer\StringInputStream;
 
 class LibgeomLittleEndianDataReader extends LittleEndianDataReader implements LibgeomDataReader{
+	public static function fromFile(string $file) : LibgeomLittleEndianDataReader{
+		return new LibgeomLittleEndianDataReader(new StreamInputStream(fopen($file, "rb")));
+	}
+
+	public static function fromBuffer(string $buffer) : LibgeomLittleEndianDataReader{
+		return new LibgeomLittleEndianDataReader(new StringInputStream($buffer));
+	}
+
 	public function readString() : string{
 		return $this->stream->read($this->readVarInt(false));
 	}

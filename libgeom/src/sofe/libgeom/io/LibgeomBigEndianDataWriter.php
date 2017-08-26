@@ -18,8 +18,18 @@ declare(strict_types=1);
 namespace sofe\libgeom\io;
 
 use sofe\toomuchbuffer\BigEndianDataWriter;
+use sofe\toomuchbuffer\StreamOutputStream;
+use sofe\toomuchbuffer\StringOutputStream;
 
 class LibgeomBigEndianDataWriter extends BigEndianDataWriter implements LibgeomDataWriter{
+	public static function toFile(string $file) : LibgeomBigEndianDataWriter{
+		return new LibgeomBigEndianDataWriter(new StreamOutputStream(fopen($file, "wb")));
+	}
+
+	public static function toBuffer(string &$buffer) : LibgeomBigEndianDataWriter{
+		return new LibgeomBigEndianDataWriter(new StringOutputStream($buffer));
+	}
+
 	public function writeString(string $string){
 		$this->writeVarInt(strlen($string), false);
 		$this->stream->write($string);

@@ -52,8 +52,8 @@ class CuboidShape extends Shape{
 				max($this->from->y, $this->to->y),
 				max($this->from->z, $this->to->z));
 		}else{
-			$this->from = null;
-			$this->to = null;
+			$this->min = null;
+			$this->max = null;
 		}
 	}
 

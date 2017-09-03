@@ -74,13 +74,13 @@ class CuboidShape extends Shape{
 	}
 
 	public function setFrom(Vector3 $from = null) : CuboidShape{
-		$this->from = $from;
+		$this->from = $from === null ? null : $from->asVector3();
 		$this->onDimenChanged();
 		return $this;
 	}
 
 	public function setTo(Vector3 $to = null) : CuboidShape{
-		$this->to = $to;
+		$this->to = $to === null ? null : $to->asVector3();
 		$this->onDimenChanged();
 		return $this;
 	}

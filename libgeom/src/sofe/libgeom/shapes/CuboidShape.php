@@ -100,7 +100,8 @@ class CuboidShape extends Shape{
 	protected function estimateSize() : int{
 		assert($this->isComplete());
 		$diff = $this->max->subtract($this->min);
-		return ($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1);
+		/** @noinspection UnnecessaryCastingInspection */
+		return (int) (($diff->x + 1) * ($diff->y + 1) * ($diff->z + 1));
 	}
 
 	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{

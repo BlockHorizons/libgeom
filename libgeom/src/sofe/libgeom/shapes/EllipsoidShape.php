@@ -69,7 +69,7 @@ class EllipsoidShape extends LazyStreamsShape{
 
 	protected function estimateSize() : int{
 		assert($this->isComplete());
-		return 4 / 3 * M_PI * $this->xrad * $this->yrad * $this->zrad;
+		return (int) (4 / 3 * M_PI * $this->xrad * $this->yrad * $this->zrad);
 	}
 
 	public function getEstimatedSurfaceSize(float $padding, float $margin) : int{

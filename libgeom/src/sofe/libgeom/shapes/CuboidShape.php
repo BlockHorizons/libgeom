@@ -32,8 +32,8 @@ class CuboidShape extends Shape{
 	private $min = null, $max = null;
 
 	public function __construct(Level $level, Vector3 $from = null, Vector3 $to = null){
-		$this->from = $from;
-		$this->to = $to;
+		$this->from = $from === null ? null : $from->asVector3();
+		$this->to = $to === null ? null : $to->asVector3();
 		$this->onDimenChanged();
 		$this->setLevel($level);
 	}

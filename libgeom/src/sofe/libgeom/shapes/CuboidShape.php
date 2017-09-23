@@ -174,8 +174,8 @@ class CuboidShape extends Shape{
 	}
 
 	public function getSolidStream(Vector3 $vector) : \Generator{
-		for($vector->x = $this->min->x; $vector->x <= $this->max->x; ++$vector->x){
-			for($vector->y = $this->min->y; $vector->y <= $this->max->y; ++$vector->y){
+		for($vector->y = $this->min->y; $vector->y <= $this->max->y; ++$vector->y){
+			for($vector->x = $this->min->x; $vector->x <= $this->max->x; ++$vector->x){
 				for($vector->z = $this->min->z; $vector->z <= $this->max->z; ++$vector->z){
 					yield true;
 				}

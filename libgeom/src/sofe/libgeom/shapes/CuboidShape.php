@@ -194,15 +194,15 @@ class CuboidShape extends Shape{
 				}
 			}
 			for($vector->z = $this->min->z - $l; $i < 4; $vector->z = $this->max->z + $l, ++$i){
-				for($vector->x = $this->min->x - $l; $vector->x <= $this->max->x + $l; ++$vector->x){
-					for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+				for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+					for($vector->x = $this->min->x - $l; $vector->x <= $this->max->x + $l; ++$vector->x){
 						yield true;
 					}
 				}
 			}
 			for($vector->x = $this->min->x - $l; $i < 6; $vector->x = $this->max->x + $l, ++$i){
-				for($vector->z = $this->min->z - $l + 1; $vector->z <= $this->max->z + $l - 1; ++$vector->z){
-					for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+				for($vector->y = $this->min->y - $l + 1; $vector->y <= $this->max->x + $l - 1; ++$vector->y){
+					for($vector->z = $this->min->z - $l + 1; $vector->z <= $this->max->z + $l - 1; ++$vector->z){
 						yield true;
 					}
 				}
